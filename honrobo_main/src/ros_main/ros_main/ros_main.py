@@ -24,7 +24,7 @@ class RosMain(Node):
     
     CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
     ARROW_LOST_FRAME = 20
-    MAX_MOVE_AXES = 128
+    MAX_MOVE_AXES = 120
     MAX_MOVE_METER = 1
     USE_CAMERA = 1 # 0=Manual 1=Auto
     
@@ -79,8 +79,8 @@ class RosMain(Node):
         joy_data, copied_button, hat_msg_data = self.contoroller(data)
         
         if self.USE_CAMERA:
-            joy_data = self.joy_tool.override_joy(joy_data, 1, side_distance)
-            joy_data = self.joy_tool.override_joy(joy_data, 0, front_distance)
+            joy_data = self.joy_tool.override_joy(joy_data, 0, side_distance)
+            joy_data = self.joy_tool.override_joy(joy_data, 1, front_distance)
         
         to_int = lambda x: list(map(int, x))
         
