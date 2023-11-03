@@ -24,7 +24,7 @@ class RosMain(Node):
     
     CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
     ARROW_LOST_FRAME = 20
-    MAX_MOVE_AXES = 120
+    MAX_MOVE_AXES = 50
     MAX_MOVE_METER = 1
     USE_CAMERA = 1 # 0=Manual 1=Auto
     
