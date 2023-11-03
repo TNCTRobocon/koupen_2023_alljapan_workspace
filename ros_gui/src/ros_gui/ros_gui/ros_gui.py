@@ -42,7 +42,7 @@ class App(ct.CTk):
         self.in_roop()
         
     def in_roop(self):
-        rclpy.spin_once(self.ros_gui, timeout_sec=1)
+        rclpy.spin_once(self.ros_gui, timeout_sec=0.1)
         
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
@@ -109,11 +109,11 @@ class App(ct.CTk):
         
         self.button_obj_keeper.append([self.conf6_btn1, self.conf6_btn2])
         
-        self.conf7_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=lambda a = 0:self.apply_preset(a), font=self.fonts)
+        self.conf7_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_preset_back, font=self.fonts)
         self.conf7_btn1.grid(column=0, row=6, padx=5, pady=5)
         self.conf7_label = ct.CTkLabel(master=self, width=180, height=200, text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]), font=self.fonts)
         self.conf7_label.grid(column=1, row=6, padx=5, pady=5)
-        self.conf7_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=lambda a = 1:self.apply_preset(a), font=self.fonts)
+        self.conf7_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=self.apply_preset_next, font=self.fonts)
         self.conf7_btn2.grid(column=2, row=6, padx=5, pady=5)
 
         self.updates()
@@ -143,15 +143,10 @@ class App(ct.CTk):
         
         self.ros_gui.cvt_and_send(self.config_keeper)
         
-    def apply_preset(self,mode):
-        if mode: # Next
-            self.now_preset += 1
-            if self.now_preset > len(self.preset_config) - 1:
-                self.now_preset = 0
-        else: # Back
-            self.now_preset -= 1
-            if self.now_preset < 0:
-                self.now_preset = len(self.preset_config) - 1
+    def apply_preset_next(self):
+        self.now_preset += 1
+        if self.now_preset > len(self.preset_config) - 1:
+            self.now_preset = 0
                 
         for i in range(3):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
@@ -165,7 +160,29 @@ class App(ct.CTk):
         self.updates()
         
         if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
-            self.after(500,lambda x = 1:self.apply_preset(x))
+            self.after(250,self.apply_preset_next)
+            
+    def apply_preset_back(self):
+        self.now_preset -= 1
+        if self.now_preset < 0:
+            self.now_preset = len(self.preset_config) - 1
+                
+        for i in range(3):
+            self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
+        
+        if self.now_preset == 0:
+            self.config_keeper[1] = 1
+        else:
+            self.config_keeper[1] = 2
+            
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
+        self.updates()
+            
+            
+            
+            
+
+
         
     
     
