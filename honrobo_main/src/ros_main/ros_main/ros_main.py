@@ -130,7 +130,7 @@ class RosMain(Node):
             self.point.x = float(detected_rect_point.detected_centor_x)
             self.point.y = float(detected_rect_point.detected_centor_y)
             
-            self.move_side_distance = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_AXES * -1
+            self.move_side_distance = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_AXES 
             
             self.move_front_distance = self.recog.calc_front_movement(detected_rect_point,result)
             self.move_front_distance = (self.move_front_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES * -1
