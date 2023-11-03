@@ -71,9 +71,9 @@ class Recog():
         distance_from_centor = abs(origin_point.origin_frame_centor_x - detected_rect_point.detected_centor_x)
         per_of_screen = ((detected_rect_point.detected_x2 - detected_rect_point.detected_x1) * (detected_rect_point.detected_y2 - detected_rect_point.detected_y1)  /  (origin_point.origin_frame_x * origin_point.origin_frame_y))
         if (detected_rect_point.detected_centor_x < origin_point.origin_frame_centor_x):
-            direction = -1
-        else:
             direction = 1
+        else:
+            direction = -1
         if detected_rect_point.helf_detected_x1 < origin_point.origin_frame_centor_x < detected_rect_point.helf_detected_x2:
             return 0
         move_distance = (distance_from_centor / origin_point.origin_frame_x) * (1 - per_of_screen) * direction
