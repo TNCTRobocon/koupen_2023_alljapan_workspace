@@ -22,11 +22,11 @@ class RosMain(Node):
     data_pub_topic_name = 'can_data'
     img_pub_topic_name = 'result'
     
-    CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
+    CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
     ARROW_LOST_FRAME = 20
     MAX_MOVE_AXES = 60
     MAX_MOVE_METER = 10
-    USE_CAMERA = 0 # 0=Manual 1=Auto
+    USE_CAMERA = 1 # 0=Manual 1=Auto
     
     move_distance = 0
         
