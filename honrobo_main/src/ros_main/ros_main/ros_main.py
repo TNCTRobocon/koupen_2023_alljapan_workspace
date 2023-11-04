@@ -5,6 +5,8 @@ from std_msgs.msg import Int16MultiArray
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 
+import time
+
 from .module.RealsenseTools import Realsense
 from .module.JoyCalcTools import JoyCalcTools
 from .module.Recognition import Recog
@@ -88,14 +90,17 @@ class RosMain(Node):
         tmp_data_1 = Int16MultiArray(data=joy_data)
         self.pub_joy.publish(tmp_data_1)
         
+        time.sleep(0.001)
         copied_button = to_int(copied_button)
         tmp_data_2 = Int16MultiArray(data=copied_button)
         self.pub_btn.publish(tmp_data_2)
+        time.sleep(0.001)
         
         hat_msg_data = to_int(hat_msg_data)
         self.joy_tool.override_config(hat_msg_data, self.config)
         tmp_data_3 = Int16MultiArray(data=hat_msg_data)
         self.pub_data.publish(tmp_data_3)
+        time.sleep(0.001)
         
         if self.USE_CAMERA:
             img = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
