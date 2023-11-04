@@ -119,14 +119,14 @@ class App(ct.CTk):
         self.updates()
     
     def callback(self,config,mode,me):
-        if config:
+        if config == 1:
             self.config_keeper[config - 1] = me
         else:
-            if mode:
+            if mode == 1:
                 self.config_keeper[config - 1] += 1
                 if self.config_keeper[config - 1] >= self.num_of_config[config - 1]:
                     self.config_keeper[config - 1] = 1
-            elif mode:
+            elif mode == 0:
                 self.config_keeper[config - 1] -= 1
                 if self.config_keeper[config - 1] <= 1:
                     self.config_keeper[config - 1] = self.num_of_config[config - 1]
