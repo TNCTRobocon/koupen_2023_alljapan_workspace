@@ -160,7 +160,7 @@ class App(ct.CTk):
         self.updates()
         
         if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
-            self.after(250,self.apply_preset_next)
+            self.after(500,self.apply_preset_next)
             
     def apply_preset_back(self):
         self.now_preset -= 1
