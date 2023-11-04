@@ -44,9 +44,6 @@ class UsbCan:
         if self.__debug_mode:
             return
         if self.__state == True:
-            try:
-                self.__can0.send(msg)
-            except:
-                pass
+            self.__can0.send(msg)
         return
     
