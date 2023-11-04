@@ -1,5 +1,6 @@
 import os
 import can
+import time
 
 class UsbCan:
     """constructor"""
@@ -41,9 +42,17 @@ class UsbCan:
     
     """send data"""
     def send(self,msg):
-        if self.__debug_mode:
+        try:
+            if self.__debug_mode:
+                return
+            if self.__state == True:
+                self.__can0.send(msg)
             return
-        if self.__state == True:
-            self.__can0.send(msg)
-        return
+        except:
+            time.sleep(0.01)
+            print("can translate error")
+            print("reconnected...")
+            self.close()
+            self.open()
+            
     
