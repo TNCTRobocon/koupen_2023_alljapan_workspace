@@ -23,7 +23,7 @@ class RosMain(Node):
     img_pub_topic_name = 'result'
     
     CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
-    ARROW_LOST_FRAME = 20
+    ARROW_LOST_FRAME = 10
     MAX_MOVE_AXES = 50
     MAX_MOVE_METER = 0.5
     USE_CAMERA = 1 # 0=Manual 1=Auto
@@ -132,8 +132,8 @@ class RosMain(Node):
             
             self.move_side_distance = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_AXES 
             
-            self.move_front_distance = self.recog.calc_front_movement(detected_rect_point,result)
-            self.move_front_distance = (self.move_front_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES 
+            self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
+            self.move_front_distance = (self.fruits_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES 
             return image, depth, self.move_side_distance, self.move_front_distance
         else :
             print("lost")

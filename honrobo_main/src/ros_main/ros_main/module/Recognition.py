@@ -83,8 +83,8 @@ class Recog():
         x = detected_rect_point.detected_centor_x
         y = detected_rect_point.detected_centor_y
         depth_data_meters = result.get_distance(x,y)
-        if depth_data_meters < 0.1:
-            return 0
+        # if depth_data_meters < 0.1:
+        #     return 0
         
         return depth_data_meters
     
