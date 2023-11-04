@@ -46,7 +46,7 @@ class UsbCan:
         if self.__state == True:
             try:
                 self.__can0.send(msg)
-            except RecursionError:
+            except:
                 pass
         return
     
