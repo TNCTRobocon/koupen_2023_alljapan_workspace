@@ -49,7 +49,7 @@ class UsbCan:
                 self.__can0.send(msg)
             return
         except:
-            time.sleep(0.01)
+            time.sleep(3)
             print("can translate error")
             print("reconnected...")
             self.close()
