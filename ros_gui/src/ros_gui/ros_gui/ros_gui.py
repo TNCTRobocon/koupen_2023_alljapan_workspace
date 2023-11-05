@@ -3,7 +3,6 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray
 
-    
 
 class App(ct.CTk):
     FONT_TYPE = "meiryo"
@@ -11,12 +10,14 @@ class App(ct.CTk):
     num_of_config = [3, 2, 2, 2, 2, 2]
     
     color_config = ["#bf3a7a", "#3a7ebf"]
-    color_hover_config = ["#823275", "#325882"]
+    # color_hover_config = ["#823275", "#325882"]
     
     button_obj_keeper = []
+    
     now_preset = 0
     now_timber_preset = 0
-    preset_config = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 1, 1], [1, 1, 1], [1, 1, 2], [1, 2, 2], [1, 2, 1], [1, 1, 1]]
+    
+    preset_config =        [[1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 1, 1], [1, 1, 1], [1, 1, 2], [1, 2, 2], [1, 2, 1], [1, 1, 1]]
     timber_preset_config = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [1, 2, 1], [1, 1, 1], [1, 1, 2], [1, 1, 1]]
     
     def __init__(self):
@@ -27,6 +28,7 @@ class App(ct.CTk):
         self.fonts = (self.FONT_TYPE, 25)
         self.geometry("590x900")
         self.title("GUI")
+        
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
@@ -38,6 +40,7 @@ class App(ct.CTk):
         self.grid_rowconfigure(5, weight=1)
         self.grid_rowconfigure(6, weight=1)
         self.grid_rowconfigure(7, weight=1)
+        self.grid_rowconfigure(8, weight=1)
         
         self.setup_form()
         
@@ -51,8 +54,6 @@ class App(ct.CTk):
         
         self.after(10, self.in_roop)
 
-        
-            
     def setup_form(self):
         ct.set_appearance_mode("dark")
         ct.set_default_color_theme("blue")
@@ -118,7 +119,7 @@ class App(ct.CTk):
         self.conf7_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=self.apply_preset_next, font=self.fonts)
         self.conf7_btn2.grid(column=2, row=6, padx=5, pady=5)
         
-        self.retry_btn = ct.CTkButton(master=self, width=560, height=100, text="リトライ", command=self.retry, font=self.fonts)
+        self.retry_btn = ct.CTkButton(master=self, width=570, height=100, text="リトライ", command=self.retry, font=self.fonts)
         self.retry_btn.grid(column=0, row=7, padx=5, pady=5 ,columnspan=3)
         
         self.conf8_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_timber_preset_back, font=self.fonts)
@@ -139,7 +140,7 @@ class App(ct.CTk):
         
         self.config_keeper[1] = 1
             
-        self.conf7_label.configure(text="段差乗り越え %d/%d"%(self.now_preset,len(self.preset_config) - 1))
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
         self.updates()
         
@@ -172,7 +173,7 @@ class App(ct.CTk):
     def apply_preset_next(self):
         self.now_preset += 1
         if self.now_preset > len(self.preset_config) - 1:
-            self.now_preset = 0
+            self.now_preset = 011
                 
         for i in range(3):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
