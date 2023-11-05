@@ -15,7 +15,9 @@ class App(ct.CTk):
     
     button_obj_keeper = []
     now_preset = 0
+    now_timber_preset = 0
     preset_config = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 1, 1], [1, 1, 1], [1, 1, 2], [1, 2, 2], [1, 2, 1], [1, 1, 1]]
+    timber_preset_config = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [1, 2, 1], [1, 1, 1], [1, 1, 2], [1, 1, 1]]
     
     def __init__(self):
         super().__init__()
@@ -115,8 +117,32 @@ class App(ct.CTk):
         self.conf7_label.grid(column=1, row=6, padx=5, pady=5)
         self.conf7_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=self.apply_preset_next, font=self.fonts)
         self.conf7_btn2.grid(column=2, row=6, padx=5, pady=5)
+        
+        self.retry_btn = ct.CTkButton(master=self, width=560, height=100, text="リトライ", command=self.retry, font=self.fonts)
+        self.retry_btn.grid(column=0, row=7, padx=5, pady=5 ,columnspan=3)
+        
+        self.conf8_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_timber_preset_back, font=self.fonts)
+        self.conf8_btn1.grid(column=0, row=8, padx=5, pady=5)
+        self.conf8_label = ct.CTkLabel(master=self, width=180, height=200, text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1), font=self.fonts)
+        self.conf8_label.grid(column=1, row=8, padx=5, pady=5)
+        self.conf8_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=self.apply_timber_preset_next, font=self.fonts)
+        self.conf8_btn2.grid(column=2, row=8, padx=5, pady=5)
 
         self.updates()
+        
+    def retry(self):
+        self.now_preset = 0
+        self.now_timber_preset = 0
+        
+        for i in range(3):
+            self.config_keeper[i + 2] = 1
+        
+        self.config_keeper[1] = 1
+            
+        self.conf7_label.configure(text="段差乗り越え %d/%d"%(self.now_preset,len(self.preset_config) - 1))
+        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
+        self.updates()
+        
     
     def callback(self,config,mode,me):
         if config == 1:
@@ -162,6 +188,25 @@ class App(ct.CTk):
         if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
             self.after(500,self.apply_preset_next)
             
+    def apply_timber_preset_next(self):
+        self.now_timber_preset += 1
+        if self.now_timber_preset > len(self.timber_preset_config) - 1:
+            self.now_timber_preset = 0
+                
+        for i in range(3):
+            self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
+        
+        if self.now_timber_preset == 0:
+            self.config_keeper[1] = 1
+        else:
+            self.config_keeper[1] = 2
+            
+        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
+        self.updates()
+        
+        if self.now_timber_preset == 1 or self.now_timber_preset == 3:
+            self.after(500,self.apply_timber_preset_next)
+            
     def apply_preset_back(self):
         self.now_preset -= 1
         if self.now_preset < 0:
@@ -177,15 +222,24 @@ class App(ct.CTk):
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
-            
-            
-            
-            
-
-
         
-    
-    
+    def apply_timber_preset_back(self):
+        self.now_timber_preset -= 1
+        if self.now_timber_preset < 0:
+            self.now_timber_preset = len(self.timber_preset_config) - 1
+                
+        for i in range(3):
+            self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
+        
+        if self.now_timber_preset == 0:
+            self.config_keeper[1] = 1
+        else:
+            self.config_keeper[1] = 2
+            
+        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
+        self.updates()
+            
+
 class RosGui(Node):
     node_name = "ros_gui"
     config_pub_topic_name = "config"
