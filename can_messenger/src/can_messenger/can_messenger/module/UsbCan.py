@@ -42,17 +42,17 @@ class UsbCan:
     
     """send data"""
     def send(self,msg):
-        try:
-            if self.__debug_mode:
-                return
-            if self.__state == True:
-                self.__can0.send(msg)
+        # try:
+        if self.__debug_mode:
             return
-        except:
-            time.sleep(3)
-            print("can translate error")
-            print("reconnected...")
-            self.close()
-            self.open()
+        if self.__state == True:
+            self.__can0.send(msg)
+        return
+        # except:
+            # time.sleep(3)
+            # print("can translate error")
+            # print("reconnected...")
+            # self.close()
+            # self.open()
             
     
