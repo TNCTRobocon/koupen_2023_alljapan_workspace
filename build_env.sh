@@ -19,3 +19,5 @@ pip install ultralytics
 pip install opencv-python
 pip install pyrealsense2
 pip install python-can
+pip install setuptools==58.2.0
+pip install numpy==1.24.4

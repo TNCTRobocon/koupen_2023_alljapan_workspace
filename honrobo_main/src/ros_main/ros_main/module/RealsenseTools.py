@@ -9,7 +9,7 @@ class Realsense():
         config.enable_stream(rs.stream.depth, 424, 240, rs.format.z16, 15)
         
         self.pipeline = rs.pipeline()
-        profile = self.pipeline.start(config)
+        self.profile = self.pipeline.start(config)
         
         align_to = rs.stream.color
         self.align = rs.align(align_to)
@@ -19,6 +19,9 @@ class Realsense():
         self.hole_filling = rs.hole_filling_filter()
         self.depth_to_disparity = rs.disparity_transform(True)
         self.disparity_to_depth = rs.disparity_transform(False)
+        
+    def stopper(self):
+        self.pipeline.stop()
         
     def get_realsense_frame(self):
         frames = self.pipeline.wait_for_frames()

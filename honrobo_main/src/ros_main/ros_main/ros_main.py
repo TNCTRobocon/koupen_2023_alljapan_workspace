@@ -4,6 +4,7 @@ from sensor_msgs.msg import Joy, Image
 from std_msgs.msg import Int16MultiArray
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
+import pyrealsense2
 
 import time
 
@@ -11,6 +12,8 @@ from .module.RealsenseTools import Realsense
 from .module.JoyCalcTools import JoyCalcTools
 from .module.Recognition import Recog
 from .module.Switch import *
+
+
 
 class RosMain(Node):
     node_name = "ros_main"
@@ -24,16 +27,26 @@ class RosMain(Node):
     data_pub_topic_name = 'can_data'
     img_pub_topic_name = 'result'
     
-    CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
+    CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
     ARROW_LOST_FRAME = 10
     MAX_MOVE_AXES = 50
     MAX_MOVE_METER = 0.5
     USE_CAMERA = 1 # 0=Manual 1=Auto
+    CONNECT_CAMERA = 0
     
     move_distance = 0
-        
+    
+    rs = None
+    
     def __init__(self):
+        
         super().__init__(self.node_name)
+        self.get_logger().info("Start init")
+        
+        self.ctx = pyrealsense2.context()
+        self.ctx.set_devices_changed_callback(self.rs_changed)
+        
+        self.get_logger().info("Applying CTX settings")
         
         self.joy_sub = self.create_subscription(Joy, self.joy_linux_sub_topic, self.sub_joy_callback, 10)
         self.selected_point_sub = self.create_subscription(Point, self.selected_point_sub_topic, self.sub_point_callback, 10)
@@ -43,28 +56,47 @@ class RosMain(Node):
         self.pub_btn = self.create_publisher(Int16MultiArray, self.btn_pub_topic_name, 10)
         self.pub_data = self.create_publisher(Int16MultiArray, self.data_pub_topic_name, 10)
         self.pub_image = self.create_publisher(Image, self.img_pub_topic_name, 10)
+        self.get_logger().info("Applying Node settings")
         
-        if self.USE_CAMERA == 1:
-            try:
-                self.rs = Realsense()
-            except RuntimeError as e:
-                print("no realsense")
-                print(e)
-                self.USE_CAMERA = 0
-            else:
-                self.USE_CAMERA = 1
         self.t_switch = ToggleSwitch()
         self.joy_tool = JoyCalcTools(self.CONTOROLLER_MODE)
         self.recog = Recog()
         self.imsg = Image()
         self.bridge = CvBridge()
+        self.get_logger().info("Generated Object")
         
         self.point = None
         self.config = [1, 1, 1, 1, 1, 1]
         self.move_side_distance = 0
         self.move_front_distance = 0
         self.button_data = [0] * 4
+
+        if self.USE_CAMERA == 1:
+            try:
+                self.get_logger().info("Waiting Realsense for 10sec...")
+                self.rs = Realsense()
+                self.CONNECT_CAMERA = 1
+            except:
+                self.get_logger().info("No Realsense detected")
+        else:
+            self.get_logger().info("Realsense is not used")
+                
+        self.get_logger().info("Main process start")
         
+    def rs_changed(self,inf):
+        self.get_logger().info("Changed Realsense status")
+        devs = inf.get_new_devices()
+
+        if len(devs):
+            self.get_logger().info("Realsense connected")
+            self.rs = Realsense()
+            self.CONNECT_CAMERA = 1
+        else:
+            self.CONNECT_CAMERA = 0
+            self.get_logger().info("Realsense disconnected")
+            self.get_logger().info("Please reconnect after 10sec")
+            self.rs.stopper()
+            
     def sub_point_callback(self, data):
         self.point = data
         
@@ -74,13 +106,14 @@ class RosMain(Node):
         
         
     def sub_joy_callback(self, data):
-        if self.USE_CAMERA: 
+        camera_status = self.USE_CAMERA == 1 and self.CONNECT_CAMERA == 1
+        if camera_status: 
             image, _, side_distance, front_distance= self.recognition()
             print(side_distance, front_distance)
         
         joy_data, copied_button, hat_msg_data = self.contoroller(data)
         
-        if self.USE_CAMERA:
+        if camera_status:
             joy_data = self.joy_tool.override_joy(joy_data, 0, side_distance)
             joy_data = self.joy_tool.override_joy(joy_data, 1, front_distance)
         
@@ -102,9 +135,12 @@ class RosMain(Node):
         self.pub_data.publish(tmp_data_3)
         time.sleep(0.001)
         
-        if self.USE_CAMERA:
-            img = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
-            self.pub_image.publish(img)
+        if camera_status:
+            try:
+                img = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
+                self.pub_image.publish(img)
+            except UnboundLocalError:
+                pass
 
         
     def recognition(self):
