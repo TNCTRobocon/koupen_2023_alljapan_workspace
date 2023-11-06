@@ -9,8 +9,6 @@ class Recog():
     # None判定しろ
     def __init__(self):
         self.model = YOLO("honrobo_main/src/ros_main/weights/best.pt") # PATH
-        # self.model = YOLO("/home/kohki/HONROBO_WS/honrobo_main/src/ros_main/weights/best.pt") # PATH
-        # self.model = YOLO("/home/kohki/HONROBO_WS/honrobo_main/src/ros_main/weights/best.pt") # PATH
         self.detected_none_count = 0
     def detect_fruits(self, image):
         results = self.model.track(source=image, tracker="botsort.yaml", conf=0.5, iou=0.5, persist=True, show=False)

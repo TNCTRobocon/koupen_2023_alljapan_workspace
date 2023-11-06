@@ -3,6 +3,13 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray
 
+from enum import Enum
+
+class Preset(Enum):
+    UP = 1
+    DOWN = 2
+    BELT_ON = 1
+    BELT_OFF = 2
 
 class App(ct.CTk):
     FONT_TYPE = "meiryo"
@@ -10,15 +17,15 @@ class App(ct.CTk):
     num_of_config = [3, 2, 2, 2, 2, 2]
     
     color_config = ["#bf3a7a", "#3a7ebf"]
-    # color_hover_config = ["#823275", "#325882"]
+    color_hover_config = ["#823275", "#325882"]
     
     button_obj_keeper = []
     
     now_preset = 0
     now_timber_preset = 0
     
-    preset_config =        [[1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 1, 1], [1, 1, 1], [1, 1, 2], [1, 2, 2], [1, 2, 1], [1, 1, 1]]
-    timber_preset_config = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [1, 2, 1], [1, 1, 1], [1, 1, 2], [1, 1, 1]]
+    preset_config =        [[Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.DOWN.value], [Preset.UP.value, Preset.DOWN.value, Preset.DOWN.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value]]
+    timber_preset_config = [[Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.DOWN.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value]]
     
     def __init__(self):
         super().__init__()
@@ -49,7 +56,7 @@ class App(ct.CTk):
     def in_roop(self):
         rclpy.spin_once(self.ros_gui, timeout_sec=0.1)
         
-        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset, len(self.preset_config) - 1, self.ros_gui.msg[0]))
         self.updates()
         
         self.after(10, self.in_roop)
@@ -120,7 +127,7 @@ class App(ct.CTk):
         self.conf7_btn2.grid(column=2, row=6, padx=5, pady=5)
         
         self.retry_btn = ct.CTkButton(master=self, width=570, height=100, text="リトライ", command=self.retry, font=self.fonts)
-        self.retry_btn.grid(column=0, row=7, padx=5, pady=5 ,columnspan=3)
+        self.retry_btn.grid(column=0, row=7, padx=5, pady=5, columnspan=3)
         
         self.conf8_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_timber_preset_back, font=self.fonts)
         self.conf8_btn1.grid(column=0, row=8, padx=5, pady=5)
@@ -138,22 +145,22 @@ class App(ct.CTk):
         for i in range(3):
             self.config_keeper[i + 2] = 1
         
-        self.config_keeper[1] = 1
+        self.config_keeper[1] = Preset.BELT_OFF.value
             
-        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
-        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset, len(self.preset_config) - 1, self.ros_gui.msg[0]))
+        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset, len(self.timber_preset_config) - 1))
         self.updates()
         
     
     def callback(self,config,mode,me):
-        if config == 1:
+        if config:
             self.config_keeper[config - 1] = me
         else:
-            if mode == 1:
+            if mode:
                 self.config_keeper[config - 1] += 1
                 if self.config_keeper[config - 1] >= self.num_of_config[config - 1]:
                     self.config_keeper[config - 1] = 1
-            elif mode == 0:
+            else:
                 self.config_keeper[config - 1] -= 1
                 if self.config_keeper[config - 1] <= 1:
                     self.config_keeper[config - 1] = self.num_of_config[config - 1]
@@ -166,22 +173,22 @@ class App(ct.CTk):
             for j in range(len(i_list)):
                 target_obj = i_list[j] 
                 target_obj.configure(fg_color=self.color_config[j + 1 != self.config_keeper[i]])
-                target_obj.configure(hover_color=self.color_config[j + 1 != self.config_keeper[i]])
+                target_obj.configure(hover_color=self.color_hover_config[j + 1 != self.config_keeper[i]])
         
         self.ros_gui.cvt_and_send(self.config_keeper)
         
     def apply_preset_next(self):
         self.now_preset += 1
         if self.now_preset > len(self.preset_config) - 1:
-            self.now_preset = 011
+            self.now_preset = 0
                 
         for i in range(3):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
         
         if self.now_preset == 0:
-            self.config_keeper[1] = 1
+            self.config_keeper[1] = Preset.BELT_ON.value
         else:
-            self.config_keeper[1] = 2
+            self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
@@ -198,14 +205,14 @@ class App(ct.CTk):
             self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
         
         if self.now_timber_preset == 0:
-            self.config_keeper[1] = 1
+            self.config_keeper[1] = Preset.BELT_ON.value
         else:
-            self.config_keeper[1] = 2
+            self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
         self.updates()
         
-        if self.now_timber_preset == 1 or self.now_timber_preset == 3:
+        if self.now_timber_preset == 1 or self.now_timber_preset == 3 or self.now_timber_preset == 6:
             self.after(500,self.apply_timber_preset_next)
             
     def apply_preset_back(self):
@@ -217,9 +224,9 @@ class App(ct.CTk):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
         
         if self.now_preset == 0:
-            self.config_keeper[1] = 1
+            self.config_keeper[1] = Preset.BELT_ON.value
         else:
-            self.config_keeper[1] = 2
+            self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
@@ -233,9 +240,9 @@ class App(ct.CTk):
             self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
         
         if self.now_timber_preset == 0:
-            self.config_keeper[1] = 1
+            self.config_keeper[1] = Preset.BELT_ON.value
         else:
-            self.config_keeper[1] = 2
+            self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
         self.updates()
