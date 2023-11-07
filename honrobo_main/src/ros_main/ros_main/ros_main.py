@@ -6,12 +6,17 @@ from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 import pyrealsense2
 
+import json
+from pathlib import Path
+import depthai as dai
+
 import time
 
 from .module.RealsenseTools import Realsense
 from .module.JoyCalcTools import JoyCalcTools
 from .module.Recognition import Recog
 from .module.Switch import *
+from .module.DepthAiTools import *
 
 
 
@@ -21,6 +26,7 @@ class RosMain(Node):
     joy_linux_sub_topic = "joy"
     selected_point_sub_topic = "result_mouse_left"
     config_sub_topic = "config"
+    config2_sub_topic = "config2"
     
     joy_pub_topic_name = 'can_joy'
     btn_pub_topic_name = 'can_btn'
@@ -31,8 +37,15 @@ class RosMain(Node):
     ARROW_LOST_FRAME = 10
     MAX_MOVE_AXES = 50
     MAX_MOVE_METER = 0.5
+    
     USE_CAMERA = 1 # 0=Manual 1=Auto
-    CONNECT_CAMERA = 0
+    
+    CAMERA_TYPE = 1 #0=Only DepthAI 1=Use Both
+    CONNECT_RS = 0
+    CONNECT_DAI = 0
+    USE_WHICH = 0 #0=Depth 1=RS
+    
+    
     
     move_distance = 0
     
@@ -51,6 +64,7 @@ class RosMain(Node):
         self.joy_sub = self.create_subscription(Joy, self.joy_linux_sub_topic, self.sub_joy_callback, 10)
         self.selected_point_sub = self.create_subscription(Point, self.selected_point_sub_topic, self.sub_point_callback, 10)
         self.config_sub = self.create_subscription(Int16MultiArray, self.config_sub_topic, self.sub_config_callback, 10)
+        self.config2_sub = self.create_subscription(Int16MultiArray, self.config2_sub_topic, self.sub_config2_callback, 10)
         
         self.pub_joy = self.create_publisher(Int16MultiArray, self.joy_pub_topic_name, 10)
         self.pub_btn = self.create_publisher(Int16MultiArray, self.btn_pub_topic_name, 10)
@@ -70,16 +84,27 @@ class RosMain(Node):
         self.move_side_distance = 0
         self.move_front_distance = 0
         self.button_data = [0] * 4
-
-        if self.USE_CAMERA == 1:
+        
+        if self.USE_CAMERA:
+            if self.CAMERA_TYPE == 1:
+                try:
+                    self.get_logger().info("Waiting Realsense for 10sec...")
+                    self.rs = Realsense()
+                    self.CONNECT_RS = 1
+                except:
+                    self.get_logger().info("No Realsense detected")
+                    self.CONNECT_RS = 0
+            else:
+                self.get_logger().info("Realsense is not used")
+                self.CONNECT_RS = 0
+                
             try:
-                self.get_logger().info("Waiting Realsense for 10sec...")
-                self.rs = Realsense()
-                self.CONNECT_CAMERA = 1
+                self.rec = DepthAiTools()
+                self.device = dai.Device(self.rec.pipeline)
+                self.CONNECT_DAI = 1
             except:
-                self.get_logger().info("No Realsense detected")
-        else:
-            self.get_logger().info("Realsense is not used")
+                self.get_logger().info("DepthAI is not used")
+                self.CONNECT_DAI = 0
                 
         self.get_logger().info("Main process start")
         
@@ -90,9 +115,9 @@ class RosMain(Node):
         if len(devs):
             self.get_logger().info("Realsense connected")
             self.rs = Realsense()
-            self.CONNECT_CAMERA = 1
+            self.CONNECT_RS = 1
         else:
-            self.CONNECT_CAMERA = 0
+            self.CONNECT_RS = 0
             self.get_logger().info("Realsense disconnected")
             self.get_logger().info("Please reconnect after 10sec")
             self.rs.stopper()
@@ -104,9 +129,12 @@ class RosMain(Node):
     def sub_config_callback(self, data):
         self.config = data.data
         
+    def sub_config2_callback(self, data):
+        self.USE_WHICH = data.data[0]
+        
         
     def sub_joy_callback(self, data):
-        camera_status = self.USE_CAMERA == 1 and self.CONNECT_CAMERA == 1
+        camera_status = (self.USE_CAMERA == 1 and self.CONNECT_RS == 1 and self.USE_WHICH == 1) or (self.USE_CAMERA == 1 and self.CONNECT_DAI == 1 and self.USE_WHICH == 0)
         if camera_status: 
             image, _, side_distance, front_distance= self.recognition()
             print(side_distance, front_distance)
@@ -144,8 +172,16 @@ class RosMain(Node):
 
         
     def recognition(self):
-        image, depth, result = self.rs.get_realsense_frame()
-        bbox_np = self.recog.detect_fruits(image)
+        print(self.CONNECT_DAI)
+        print(self.CONNECT_RS)
+        print(self.USE_WHICH)
+        if self.CONNECT_RS == 1 and self.USE_WHICH == 1:
+            image, depth, result = self.rs.get_realsense_frame()
+            bbox_np = self.recog.detect_fruits(image)
+        elif self.CONNECT_DAI  == 1 and self.USE_WHICH == 0:
+            image, bbox_np = self.rec.recognition(self.device)
+            depth = None
+        
         origin_point, detected_list = self.recog.calc_point(image,bbox_np)
 
         image = self.recog.draw_frame_line(image, origin_point)
@@ -173,9 +209,12 @@ class RosMain(Node):
             
             self.move_side_distance = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_AXES 
             
-            self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
-            self.move_front_distance = (self.fruits_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES 
-            return image, depth, self.move_side_distance, self.move_front_distance
+            if self.CAMERA_TYPE == 0:
+                self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
+                self.move_front_distance = (self.fruits_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES 
+                
+                return image, depth, self.move_side_distance, self.move_front_distance
+            return image, depth, self.move_side_distance, 0
         else :
             print("lost")
             self.point = None
