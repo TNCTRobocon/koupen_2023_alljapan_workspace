@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 class DepthAiTools():
-    CONFIG = "/home/kohki/realsense_ws/depth_ai_/models/best.json"
-    MODEL =  "/home/kohki/realsense_ws/depth_ai_/models/best_openvino_2022.1_6shave.blob"
+    CONFIG = "honrobo_main/src/ros_main/models/best.json"
+    MODEL =  "honrobo_main/src/ros_main/models/best_openvino_2022.1_6shave.blob"
     CAMERA_PREV_DIM = (640, 640)
     
     def __init__(self):
