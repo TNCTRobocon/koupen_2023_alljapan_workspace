@@ -1,6 +1,5 @@
 import os
 import can
-import time
 
 class UsbCan:
     """constructor"""

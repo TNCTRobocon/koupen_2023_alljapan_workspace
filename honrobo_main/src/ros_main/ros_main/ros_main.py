@@ -4,10 +4,8 @@ from sensor_msgs.msg import Joy, Image
 from std_msgs.msg import Int16MultiArray
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
-import pyrealsense2
 
-import json
-from pathlib import Path
+import pyrealsense2
 import depthai as dai
 
 import time
@@ -39,13 +37,12 @@ class RosMain(Node):
     MAX_MOVE_METER = 0.5
     
     USE_CAMERA = 1 # 0=Manual 1=Auto
-    
     CAMERA_TYPE = 1 #0=Only DepthAI 1=Use Both
+    
+    USE_WHICH = 0 #0=Depth 1=RS Switched by GUI
+    
     CONNECT_RS = 0
     CONNECT_DAI = 0
-    USE_WHICH = 0 #0=Depth 1=RS
-    
-    
     
     move_distance = 0
     

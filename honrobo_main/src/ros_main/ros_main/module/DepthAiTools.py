@@ -1,9 +1,10 @@
 import numpy as np
 import cv2
+import depthai as dai
 
 import json
 from pathlib import Path
-import depthai as dai
+
 
 class DepthAiTools():
     CONFIG = "/home/kohki/realsense_ws/depth_ai_/models/best.json"
