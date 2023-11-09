@@ -131,9 +131,9 @@ class App(ct.CTk):
         
         self.retry_btn = ct.CTkButton(master=self, width=180, height=100, text="リトライ", command=self.retry, font=self.fonts)
         self.retry_btn.grid(column=0, row=8, padx=5, pady=5)
-        self.radio_btn1 = ct.CTkRadioButton(master=self, text="RS",command=self.change_camera, variable=self.radio_var, value=0)
+        self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.radio_var, value=0)
         self.radio_btn1.grid(column=1, row=8, padx=5, pady=5)
-        self.radio_btn2 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.radio_var, value=1)
+        self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.radio_var, value=1)
         self.radio_btn2.grid(column=2, row=8, padx=5, pady=5)
         
         self.conf8_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_timber_preset_back, font=self.fonts)
