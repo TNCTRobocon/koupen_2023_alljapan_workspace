@@ -7,8 +7,8 @@ from std_msgs.msg import Int16MultiArray
 from enum import Enum
 
 class Preset(Enum):
-    UP = 1
-    DOWN = 2
+    DOWN = 1
+    UP = 2
     BELT_ON = 2
     BELT_OFF = 1
 
@@ -24,18 +24,15 @@ class App(ct.CTk):
     button_obj_keeper = []
     
     now_preset = 0
-    now_timber_preset = 0
     
-    preset_config =        [[Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.DOWN.value], [Preset.UP.value, Preset.DOWN.value, Preset.DOWN.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value]]
-    timber_preset_config = [[Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.DOWN.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value], [Preset.UP.value, Preset.UP.value, Preset.DOWN.value], [Preset.UP.value, Preset.UP.value, Preset.UP.value]]
-    
+    preset_config = [[Preset.DOWN.value, Preset.DOWN.value], [Preset.UP.value, Preset.DOWN.value], [Preset.UP.value, Preset.UP.value], [Preset.DOWN.value, Preset.UP.value], [Preset.DOWN.value, Preset.DOWN.value]]
     def __init__(self):
         super().__init__()
         rclpy.init()
         self.ros_gui = RosGui()
         
         self.fonts = (self.FONT_TYPE, 25)
-        self.geometry("590x900")
+        self.geometry("590x700")
         self.title("GUI")
         
         self.grid_columnconfigure(0, weight=1)
@@ -95,16 +92,7 @@ class App(ct.CTk):
         
         self.button_obj_keeper.append([self.conf3_btn1, self.conf3_btn2])
         
-        self.conf4_btn1 = ct.CTkButton(master=self, width=180, height=80, text="あがる", command=lambda a = 4, b = 1, c = 0 :self.callback(a,b,c), font=self.fonts)
-        self.conf4_btn1.grid(column=0, row=2, padx=5, pady=5)
-        self.conf4_label = ct.CTkLabel(master=self, width=180, height=80, text="補助輪", font=self.fonts)
-        self.conf4_label.grid(column=1, row=2, padx=5, pady=5)
-        self.conf4_btn2 = ct.CTkButton(master=self, width=180, height=80, text="さがる", command=lambda a = 4, b = 0, c = 0 :self.callback(a,b,c), font=self.fonts)
-        self.conf4_btn2.grid(column=2, row=2, padx=5, pady=5)
-        
-        self.button_obj_keeper.append([self.conf4_btn1, self.conf4_btn2])
-        
-        self.conf5_btn1 = ct.CTkButton(master=self, width=180, height=80, text="さがる", command=lambda a = 5, b = 1, c = 0 :self.callback(a,b,c), font=self.fonts)
+        self.conf5_btn1 = ct.CTkButton(master=self, width=180, height=80, text="さがる", command=lambda a = 4, b = 1, c = 0 :self.callback(a,b,c), font=self.fonts)
         self.conf5_btn1.grid(column=0, row=3, padx=5, pady=5)
         self.conf5_label = ct.CTkLabel(master=self, width=180, height=80, text="後ろタイヤ", font=self.fonts)
         self.conf5_label.grid(column=1, row=3, padx=5, pady=5)
@@ -113,11 +101,11 @@ class App(ct.CTk):
         
         self.button_obj_keeper.append([self.conf5_btn1, self.conf5_btn2])
         
-        self.conf6_btn1 = ct.CTkButton(master=self, width=180, height=80, text="オン", command=lambda a = 6, b = 1, c = 0 :self.callback(a,b,c), font=self.fonts)
+        self.conf6_btn1 = ct.CTkButton(master=self, width=180, height=80, text="オン", command=lambda a = 5, b = 1, c = 0 :self.callback(a,b,c), font=self.fonts)
         self.conf6_btn1.grid(column=0, row=4, padx=5, pady=5)
         self.conf6_label = ct.CTkLabel(master=self, width=180, height=80, text="自動操縦", font=self.fonts)
         self.conf6_label.grid(column=1, row=4, padx=5, pady=5)
-        self.conf6_btn2 = ct.CTkButton(master=self, width=180, height=80, text="オフ", command=lambda a = 6, b = 0, c = 0 :self.callback(a,b,c), font=self.fonts)
+        self.conf6_btn2 = ct.CTkButton(master=self, width=180, height=80, text="オフ", command=lambda a = 5, b = 0, c = 0 :self.callback(a,b,c), font=self.fonts)
         self.conf6_btn2.grid(column=2, row=4, padx=5, pady=5)
         
         self.button_obj_keeper.append([self.conf6_btn1, self.conf6_btn2])
@@ -130,18 +118,11 @@ class App(ct.CTk):
         self.conf7_btn2.grid(column=2, row=6, padx=5, pady=5)
         
         self.retry_btn = ct.CTkButton(master=self, width=180, height=100, text="リトライ", command=self.retry, font=self.fonts)
-        self.retry_btn.grid(column=0, row=8, padx=5, pady=5)
+        self.retry_btn.grid(column=0, row=7, padx=5, pady=5)
         self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.radio_var, value=0)
-        self.radio_btn1.grid(column=1, row=8, padx=5, pady=5)
+        self.radio_btn1.grid(column=1, row=7, padx=5, pady=5)
         self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.radio_var, value=1)
-        self.radio_btn2.grid(column=2, row=8, padx=5, pady=5)
-        
-        self.conf8_btn1 = ct.CTkButton(master=self, width=180, height=200, text="戻る", command=self.apply_timber_preset_back, font=self.fonts)
-        self.conf8_btn1.grid(column=0, row=7, padx=5, pady=5)
-        self.conf8_label = ct.CTkLabel(master=self, width=180, height=200, text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1), font=self.fonts)
-        self.conf8_label.grid(column=1, row=7, padx=5, pady=5)
-        self.conf8_btn2 = ct.CTkButton(master=self, width=180, height=200, text="進む", command=self.apply_timber_preset_next, font=self.fonts)
-        self.conf8_btn2.grid(column=2, row=7, padx=5, pady=5)
+        self.radio_btn2.grid(column=2, row=7, padx=5, pady=5)
 
         self.updates()
         
@@ -153,13 +134,12 @@ class App(ct.CTk):
         self.now_preset = 0
         self.now_timber_preset = 0
         
-        for i in range(3):
+        for i in range(2):
             self.config_keeper[i + 2] = 1
         
         self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset, len(self.preset_config) - 1, self.ros_gui.msg[0]))
-        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset, len(self.timber_preset_config) - 1))
         self.updates()
         
     
@@ -194,7 +174,7 @@ class App(ct.CTk):
         if self.now_preset > len(self.preset_config) - 1:
             self.now_preset = 0
                 
-        for i in range(3):
+        for i in range(2):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
         
         if self.now_preset == 0:
@@ -205,34 +185,15 @@ class App(ct.CTk):
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
         
-        if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
-            self.after(500,self.apply_preset_next)
-            
-    def apply_timber_preset_next(self):
-        self.now_timber_preset += 1
-        if self.now_timber_preset > len(self.timber_preset_config) - 1:
-            self.now_timber_preset = 0
-                
-        for i in range(3):
-            self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
-        
-        if self.now_timber_preset == 0:
-            self.config_keeper[1] = Preset.BELT_OFF.value
-        else:
-            self.config_keeper[1] = Preset.BELT_ON.value
-            
-        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
-        self.updates()
-        
-        if self.now_timber_preset == 1 or self.now_timber_preset == 3 or self.now_timber_preset == 6:
-            self.after(500,self.apply_timber_preset_next)
+        # if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
+        #     self.after(500,self.apply_preset_next)
             
     def apply_preset_back(self):
         self.now_preset -= 1
         if self.now_preset < 0:
             self.now_preset = len(self.preset_config) - 1
                 
-        for i in range(3):
+        for i in range(2):
             self.config_keeper[i + 2] = self.preset_config[self.now_preset][i]
         
         if self.now_preset == 0:
@@ -241,22 +202,6 @@ class App(ct.CTk):
             self.config_keeper[1] = Preset.BELT_OFF.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
-        self.updates()
-        
-    def apply_timber_preset_back(self):
-        self.now_timber_preset -= 1
-        if self.now_timber_preset < 0:
-            self.now_timber_preset = len(self.timber_preset_config) - 1
-                
-        for i in range(3):
-            self.config_keeper[i + 2] = self.timber_preset_config[self.now_timber_preset][i]
-        
-        if self.now_timber_preset == 0:
-            self.config_keeper[1] = Preset.BELT_ON.value
-        else:
-            self.config_keeper[1] = Preset.BELT_OFF.value
-            
-        self.conf8_label.configure(text="角材乗り越え %d/%d"%(self.now_timber_preset,len(self.timber_preset_config) - 1))
         self.updates()
             
 
@@ -284,7 +229,7 @@ class RosGui(Node):
         
     def callback(self,data):
         self.msg = data.data
-        print(self.msg)
+        self.get_logger().info(self.msg)
         
 def main():
     try: 
