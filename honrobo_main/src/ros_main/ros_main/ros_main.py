@@ -1,20 +1,12 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Joy, Image
+from sensor_msgs.msg import Joy
 from std_msgs.msg import Int16MultiArray
-from geometry_msgs.msg import Point
-from cv_bridge import CvBridge
-
-import pyrealsense2
-import depthai as dai
 
 import time
 
-from .module.RealsenseTools import Realsense
 from .module.JoyCalcTools import JoyCalcTools
-from .module.Recognition import Recog
 from .module.Switch import *
-from .module.DepthAiTools import *
 
 
 
@@ -22,106 +14,50 @@ class RosMain(Node):
     node_name = "ros_main"
     
     joy_linux_sub_topic = "joy"
-    selected_point_sub_topic = "result_mouse_left"
+    override_joy_sub_topic = "override_joy"
     config_sub_topic = "config"
     config2_sub_topic = "config2"
     
     joy_pub_topic_name = 'can_joy'
     btn_pub_topic_name = 'can_btn'
     data_pub_topic_name = 'can_data'
-    img_pub_topic_name = 'result'
     
     CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
-    ARROW_LOST_FRAME = 10
-    MAX_MOVE_AXES = 50
-    MAX_MOVE_METER = 0.5
-    
-    USE_CAMERA = 1 # 0=Manual 1=Auto
-    CAMERA_TYPE = 1 #0=Only DepthAI 1=Use Both
-    
-    USE_WHICH = 0 #0=Depth 1=RS Switched by GUI
-    
-    CONNECT_RS = 0
-    CONNECT_DAI = 0
-    
-    move_distance = 0
-    
-    rs = None
     
     def __init__(self):
         
         super().__init__(self.node_name)
         self.get_logger().info("Start init")
-        
-        self.ctx = pyrealsense2.context()
-        self.ctx.set_devices_changed_callback(self.rs_changed)
-        
-        self.get_logger().info("Applying CTX settings")
-        
+
         self.joy_sub = self.create_subscription(Joy, self.joy_linux_sub_topic, self.sub_joy_callback, 10)
-        self.selected_point_sub = self.create_subscription(Point, self.selected_point_sub_topic, self.sub_point_callback, 10)
+        self.override_joy = self.create_subscription(Int16MultiArray, self.override_joy_sub_topic, self.sub_override_joy_callback, 10)
         self.config_sub = self.create_subscription(Int16MultiArray, self.config_sub_topic, self.sub_config_callback, 10)
         self.config2_sub = self.create_subscription(Int16MultiArray, self.config2_sub_topic, self.sub_config2_callback, 10)
         
         self.pub_joy = self.create_publisher(Int16MultiArray, self.joy_pub_topic_name, 10)
         self.pub_btn = self.create_publisher(Int16MultiArray, self.btn_pub_topic_name, 10)
         self.pub_data = self.create_publisher(Int16MultiArray, self.data_pub_topic_name, 10)
-        self.pub_image = self.create_publisher(Image, self.img_pub_topic_name, 10)
         self.get_logger().info("Applying Node settings")
         
         self.t_switch = ToggleSwitch()
         self.joy_tool = JoyCalcTools(self.CONTOROLLER_MODE)
-        self.recog = Recog()
-        self.imsg = Image()
-        self.bridge = CvBridge()
         self.get_logger().info("Generated Object")
         
-        self.point = None
         self.config = [1, 1, 1, 1, 1, 1]
-        self.move_side_distance = 0
-        self.move_front_distance = 0
         self.button_data = [0] * 4
         
-        if self.USE_CAMERA:
-            if self.CAMERA_TYPE == 1:
-                try:
-                    self.get_logger().info("Waiting Realsense for 10sec...")
-                    self.rs = Realsense()
-                    self.CONNECT_RS = 1
-                except:
-                    self.get_logger().info("No Realsense detected")
-                    self.CONNECT_RS = 0
-            else:
-                self.get_logger().info("Realsense is not used")
-                self.CONNECT_RS = 0
-                
-            try:
-                self.rec = DepthAiTools()
-                self.device = dai.Device(self.rec.pipeline)
-                self.CONNECT_DAI = 1
-            except:
-                self.get_logger().info("DepthAI is not used")
-                self.CONNECT_DAI = 0
-                
+        self.side_distance = 0
+        self.front_distance = 0
+   
         self.get_logger().info("Main process start")
-        
-    def rs_changed(self,inf):
-        self.get_logger().info("Changed Realsense status")
-        devs = inf.get_new_devices()
 
-        if len(devs):
-            self.get_logger().info("Realsense connected")
-            self.rs = Realsense()
-            self.CONNECT_RS = 1
-        else:
-            self.CONNECT_RS = 0
-            self.get_logger().info("Realsense disconnected")
-            self.get_logger().info("Please reconnect after 10sec")
-            self.rs.stopper()
-            
     def sub_point_callback(self, data):
         self.point = data
         
+    def sub_override_joy_callback(self, data):
+        self.side_distance = data.data[0]
+        self.front_distance = data.data[1]
+        print("override callback")
     
     def sub_config_callback(self, data):
         self.config = data.data
@@ -131,16 +67,11 @@ class RosMain(Node):
         
         
     def sub_joy_callback(self, data):
-        camera_status = (self.USE_CAMERA == 1 and self.CONNECT_RS == 1 and self.USE_WHICH == 1) or (self.USE_CAMERA == 1 and self.CONNECT_DAI == 1 and self.USE_WHICH == 0)
-        if camera_status: 
-            image, _, side_distance, front_distance= self.recognition()
-            print(side_distance, front_distance)
         
         joy_data, copied_button, hat_msg_data = self.contoroller(data)
         
-        if camera_status:
-            joy_data = self.joy_tool.override_joy(joy_data, 0, side_distance)
-            joy_data = self.joy_tool.override_joy(joy_data, 1, front_distance)
+        joy_data = self.joy_tool.override_joy(joy_data, 0, self.side_distance)
+        joy_data = self.joy_tool.override_joy(joy_data, 1, self.front_distance)
         
         to_int = lambda x: list(map(int, x))
         
@@ -160,65 +91,6 @@ class RosMain(Node):
         self.pub_data.publish(tmp_data_3)
         time.sleep(0.001)
         
-        if camera_status:
-            try:
-                img = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
-                self.pub_image.publish(img)
-            except UnboundLocalError:
-                pass
-
-        
-    def recognition(self):
-        print(self.CONNECT_DAI)
-        print(self.CONNECT_RS)
-        print(self.USE_WHICH)
-        if self.CONNECT_RS == 1 and self.USE_WHICH == 1:
-            image, depth, result = self.rs.get_realsense_frame()
-            bbox_np = self.recog.detect_fruits(image)
-        elif self.CONNECT_DAI  == 1 and self.USE_WHICH == 0:
-            image, bbox_np = self.rec.recognition(self.device)
-            depth = None
-        
-        origin_point, detected_list = self.recog.calc_point(image,bbox_np)
-
-        image = self.recog.draw_frame_line(image, origin_point)
-
-        if self.recog.detecting_check(bbox_np, self.config[5]) < self.ARROW_LOST_FRAME :
-            if detected_list == None:
-                return image, depth, self.move_side_distance, self.move_front_distance
-            
-            image = self.recog.draw_all_fruits_line(image,detected_list)
-            
-            if self.point == None:
-                return image, depth, 0, 0
-            
-            detected_rect_point = self.recog.search_from_list(detected_list,self.point)
-            
-            if detected_rect_point == None:
-                return image, depth, self.move_side_distance, self.move_front_distance
-            
-            if self.config[5] != 1:
-                return image, depth, 0, 0
-            
-            image = self.recog.draw_to_fruits_line(image, origin_point, detected_rect_point)
-            self.point.x = float(detected_rect_point.detected_centor_x)
-            self.point.y = float(detected_rect_point.detected_centor_y)
-            
-            self.move_side_distance = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_AXES 
-            
-            if self.CAMERA_TYPE == 0:
-                self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
-                self.move_front_distance = (self.fruits_distance / self.MAX_MOVE_METER) * self.MAX_MOVE_AXES 
-                
-                return image, depth, self.move_side_distance, self.move_front_distance
-            return image, depth, self.move_side_distance, 0
-        else :
-            print("lost")
-            self.point = None
-            self.move_side_distance = 0
-            self.move_front_distance = 0
-            return image, depth, self.move_side_distance, self.move_front_distance
-    
     def contoroller(self, joy):
         # 1
         joy_data = [0] * 8

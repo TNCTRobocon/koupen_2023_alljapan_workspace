@@ -9,7 +9,7 @@ from pathlib import Path
 class DepthAiTools():
     CONFIG = "honrobo_main/src/ros_main/models/best.json"
     MODEL =  "honrobo_main/src/ros_main/models/best_openvino_2022.1_6shave.blob"
-    CAMERA_PREV_DIM = (640, 640)
+    CAMERA_PREV_DIM = (320, 320)
     
     def __init__(self):
         self.pipeline = self.create_camera_pipeline(self.CONFIG, self.MODEL)
@@ -109,7 +109,7 @@ class DepthAiTools():
         camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
         camRgb.setInterleaved(False)
         camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
-        camRgb.setFps(15)
+        camRgb.setFps(60)
         
         print("[INFO] setting YOLO network properties...")
         # network specific settings - parameters read from config file

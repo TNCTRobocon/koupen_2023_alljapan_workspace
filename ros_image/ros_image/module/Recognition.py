@@ -59,7 +59,7 @@ class Recog():
                         (detected_rect_point.helf_detected_x2, detected_rect_point.detected_y2), (0,255,0))    
         return image
     
-    def draw_to_fruits_line(self, image, origin_point, detected_rect_point):
+    def mark_pointed_fruits(self, image, origin_point, detected_rect_point):
         cv2.line(image, (origin_point.origin_frame_centor_x, detected_rect_point.detected_centor_y), 
                 (detected_rect_point.detected_centor_x, detected_rect_point.detected_centor_y), (0, 255, 0), thickness=2)
         return image
@@ -94,7 +94,7 @@ class Recog():
         print(self.detected_none_count)
         return self.detected_none_count
     
-    def search_from_list(self, detect_list, point):
+    def search_pointed_fruits_from_list(self, detect_list, point):
         for detect in detect_list:
             if (detect.detected_x1 < point.x < detect.detected_x2) and (detect.detected_y1 < point.y < detect.detected_y2):
                 return detect
