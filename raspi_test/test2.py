@@ -1,28 +1,22 @@
-import wiringpi
+import RPI.GPIO
 import time
 
-limit_pin = 2
-servo_pin = 12
-servo_pin2 = 13
-wiringpi.wiringPiSetupGpio()
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(12, GPIO.OUT)
+pwm0 = GPIO.PWM(18, 50)
+pwm0.start(0)
 
-wiringpi.pinMode(limit_pin, 0)
-wiringpi.pullUpDnControl(limit_pin,wiringpi.PUD_DOWN)
-wiringpi.pinMode(servo_pin, 2)
-wiringpi.pinMode(servo_pin2, 2)
-
-wiringpi.pwmSetMode(wiringpi.PWM_MODE_MS)
-wiringpi.pwmSetRange(1024)
-wiringpi.pwmSetClock(375)
-
-def move_servo(deg):
-	print(deg)
-	move_deg = int(( 4.75 * deg / 90 + 7.25) / 100 * 1024)
-	wiringpi.pwmWrite(servo_pin, move_deg)
-	wiringpi.pwmWrite(servo_pin2, move_deg)
-
-while True:
-	move_servo(90)
-	time.sleep(3)
-	move_servo(-90)
-	time.sleep(3)
+try:
+    while True:
+        deg = 90
+        deg2 = -90
+        move_deg1 = int(( 4.75 * deg * -1 / 90 + 7.25) / 100 * 1024)
+        move_deg2 = int(( 4.75 * deg2 * -1 / 90 + 7.25) / 100 * 1024)
+        pwm0.ChangeDutyCycle(move_deg1)
+        time.sleep(1.5)
+        pwm0.ChangeDutyCycle(move_deg2)
+except KeyboardInterrupt:
+    pass
+pwm0.stop()
+GPIO.cleanup()
+        
