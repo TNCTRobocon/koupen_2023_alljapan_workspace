@@ -11,6 +11,7 @@ callback_ob = []
 
 for i in range(8):
     pi.set_mode(LIMIT_PIN_LIST[i], pigpio.INPUT)
+    pi.set_pull_up_down(LIMIT_PIN_LIST[i], pigpio.PUD_UP)
 
 def main():
     for pin in LIMIT_PIN_LIST:
