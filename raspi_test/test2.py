@@ -1,20 +1,22 @@
 import pigpio
 import time
 
-pi = pigpio.pi()
+pig = pigpio.pi()
 
-servo1 = 18
+servo1 = 12
 
 deg1 = 0
 deg2 = 180
-duty1 = (deg1 * 9.5 / 180 + 2.5) * 10000
-duty2 = (deg2 * 9.5 / 180 + 2.5) * 10000
+duty1 =int((deg1 * 9.5 / 180 + 2.5) * 10000)
+duty2 =int((deg2 * 9.5 / 180 + 2.5) * 10000)
 
 freq = 50 
 
 while True:
+    print("1")
     time.sleep(3)
-    pi.hardware_PWM(servo1, freq, duty1)
+    pig.hardware_PWM(servo1, freq, duty1)
+    print("2")
     time.sleep(3)
-    pi.hardware_PWM(servo1, freq, duty2)
+    pig.hardware_PWM(servo1, freq, duty2)
     
