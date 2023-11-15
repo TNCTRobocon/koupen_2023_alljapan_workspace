@@ -1,22 +1,28 @@
-import RPi.GPIO
+import RPi.GPIO as GPIO	
 import time
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(12, GPIO.OUT)
-pwm0 = GPIO.PWM(18, 50)
-pwm0.start(0)
+pwm0 = GPIO.PWM(12, 50)
 
 try:
     while True:
-        deg = 90
-        deg2 = -90
-        move_deg1 = int(( 4.75 * deg * -1 / 90 + 7.25) / 100 * 1024)
-        move_deg2 = int(( 4.75 * deg2 * -1 / 90 + 7.25) / 100 * 1024)
+        deg = 0
+        deg2 = 180
+        move_deg1 = (deg * 9.5 / 180 + 2.5)
+        move_deg2 = (deg2 * 9.5 / 180 + 2.5)
+        print(move_deg1)
+        pwm0.start(move_deg1)
         pwm0.ChangeDutyCycle(move_deg1)
-        time.sleep(1.5)
+        time.sleep(5)
+        pwm0.stop()
+        print(move_deg2)
+        pwm0.start(move_deg2)
         pwm0.ChangeDutyCycle(move_deg2)
+        time.sleep(5)
+        pwm0.stop()
+
 except KeyboardInterrupt:
     pass
-pwm0.stop()
 GPIO.cleanup()
         
