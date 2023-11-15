@@ -10,6 +10,8 @@ class RosServo(Node):
     node_name = "ros_servo"
     config_sub_topic = "config"
     
+    limit_pub_topic = "limit"
+    
     config = None
     limit_detect_flag = 0
     
@@ -19,8 +21,8 @@ class RosServo(Node):
         self.get_logger().info("Start init")
 
         self.config_sub = self.create_subscription(Int16MultiArray, self.config_sub_topic, self.callback, 10)
-        pin = PinConfig(0, 0)
-        self.raspi = RasPi(pin)
+        self.limit_pub = self.create_publisher(Int16MultiArray, )
+        self.raspi = RasPi()
         self.servo_st = self.raspi.reset_servo()
         
     def callback(self,data):
@@ -45,6 +47,8 @@ class RasPi():
     
     servo_status = 0
     
+    #Pin configure
+    
     def __init__(self,pin):
         self.LIMIT_PIN = pin.LIMIT_PIN
         self.SERVO_PIN = pin.SERVO_PIN
@@ -66,21 +70,16 @@ class RasPi():
         pi.pwmWrite(self.SERVO_PIN, move_deg)
         
     def set_servo(self):
-        self.move_servo(deg=45)
+        self.move_servo(deg=90)
         self.servo_status = 1
         return self.servo_status
     
     def reset_servo(self):
-        self.move_servo(deg=0)
+        self.move_servo(deg=-90)
         self.servo_status = 0
         return self.servo_status
         
     def limSW_check(self):
         return pi.digitalRead(self.LIMIT_PIN)
-            
-    
-class PinConfig():
-    def __init__(self,LIM,SERVO):
-        self.LIMIT_PIN = LIM
-        self.SERVO_PIN = SERVO
+
     

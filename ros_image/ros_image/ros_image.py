@@ -9,9 +9,7 @@ import pyrealsense2
 import depthai as dai
 
 from .module.RealsenseTools import Realsense
-from .module.JoyCalcTools import JoyCalcTools
 from .module.Recognition import Recog
-from .module.Switch import *
 from .module.DepthAiTools import *
 
 class RosImage(Node):
