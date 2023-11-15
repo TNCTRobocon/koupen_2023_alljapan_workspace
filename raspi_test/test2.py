@@ -1,4 +1,4 @@
-import RPI.GPIO
+import RPi.GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
