@@ -1,7 +1,8 @@
 import wiringpi
 import time
 
-limit_pin = 2
+
+limit_pin = 27
 servo_pin = 12
 servo_pin2 = 13
 wiringpi.wiringPiSetupGpio()
