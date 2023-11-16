@@ -22,6 +22,7 @@ def main():
 
 def pin_callback(gpio, level, tick):
     print(gpio, level, tick)
+    
 
 
 main()
