@@ -67,8 +67,9 @@ class RosServo(Node):
         self.move_servo(0)
         
     def servo_check(self):
-        if self.config[2] == 3:
+        if self.config[0] == 3:
             self.reset_servo()
+            print("reset")
             return
         if self.get_pin_list[0] == 0 and self.get_pin_list[1] == 0:
             # self.reset_servo()
