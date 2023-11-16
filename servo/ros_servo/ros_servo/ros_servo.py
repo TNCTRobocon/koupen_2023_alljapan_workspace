@@ -7,7 +7,7 @@ import time
 import pigpio
 
 class RosServo(Node):
-    node_name = "ros_gui"
+    node_name = "ros_servo"
     
     limit_pub_topic = "limit"
 

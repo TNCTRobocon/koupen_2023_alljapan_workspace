@@ -16,7 +16,7 @@ old_tick = 0
 servo_status = 0
 servo_counter = 0
 
-for i in range(8):
+for i in range(len(LIMIT_PIN_LIST)):
 	pi.set_mode(LIMIT_PIN_LIST[i], pigpio.INPUT)
 	pi.set_pull_up_down(LIMIT_PIN_LIST[i], pigpio.PUD_UP)
 
@@ -56,12 +56,12 @@ def servo_check():
 		else:
 			servo_counter += 1
 	elif get_pin_list[0] == 1 or get_pin_list[1] == 1:
-		servo_counter += 1 
+		servo_counter += 1
 	else:
 		return
 def pin_callback(gpio, level, tick):
 	diff = abs(tick - limit_tick_list[LIMIT_PIN_LIST.index(gpio)])
-	if diff > 20000:
+	if diff > 10000:
 		print(gpio, level, tick)
 		changed_limit = LIMIT_PIN_LIST.index(gpio)
 		get_pin_list[changed_limit] = level
