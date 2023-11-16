@@ -9,6 +9,8 @@ import pigpio
 class RosServo(Node):
     node_name = "ros_servo"
     
+    config_sub_topic = "config"
+    
     limit_pub_topic = "limit"
 
     SERVO_PIN_LIST = [12, 13]
@@ -19,12 +21,14 @@ class RosServo(Node):
         super().__init__(self.node_name)
         self.get_logger().info("Start init")
         
+        self.config_sub = self.create_subscription(Int16MultiArray, self.config_sub_topic, self.config_sub_callback, 10)
         self.limit_pub = self.create_publisher(Int16MultiArray, self.limit_pub_topic, 10)
         self.pi = pigpio.pi()        
         
         self.get_pin_list = [0] * 8
         self.limit_tick_list = [0] * 8
         self.callback_ob = []
+        self.config = [1] * 8
         
         for i in range(8):
             self.pi.set_mode(self.LIMIT_PIN_LIST[i], pigpio.INPUT)
@@ -41,9 +45,14 @@ class RosServo(Node):
         timer_period = 0.1
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
+    def config_sub_callback(self, data):
+        self.config = data.data
+        
     def timer_callback(self):
+        print(self.get_pin_list, self.config)
         self.servo_check()
-        print(self.get_pin_list)
+        tmp = Int16MultiArray(data=self.get_pin_list)
+        self.limit_pub.publish(tmp)
     
     def move_servo(self, deg):
         deg1 = int((deg * 9.5 / 180 + 2.5) * 10000)
