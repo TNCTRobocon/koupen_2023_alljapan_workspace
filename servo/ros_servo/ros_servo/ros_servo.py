@@ -61,9 +61,11 @@ class RosServo(Node):
         self.pi.hardware_PWM(self.SERVO_PIN_LIST[1], self.FREQ, deg2)
         
     def set_servo(self):
+        print("set servo")
         self.move_servo(180)
         
     def reset_servo(self):
+        print("reset servo")
         self.move_servo(0)
         
     def servo_check(self):
