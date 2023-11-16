@@ -82,3 +82,14 @@ class RosServo(Node):
             self.get_pin_list[changed_limit] = level
 
         self.limit_tick_list[self.LIMIT_PIN_LIST.index(gpio)] = tick 
+        
+def main(args=None):
+    rclpy.init(args=args)
+    rossevo = RosServo()
+    try:
+        rclpy.spin(rossevo)
+    except KeyboardInterrupt:
+        rossevo.destroy_node()
+        
+if __name__ == "__main__":
+    main()
