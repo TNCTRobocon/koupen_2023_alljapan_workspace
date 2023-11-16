@@ -30,7 +30,7 @@ class RosMain(Node):
         self.get_logger().info("Start init")
 
         self.joy_sub = self.create_subscription(Joy, self.joy_linux_sub_topic, self.sub_joy_callback, 10)
-        self.override_joy = self.create_subscription(Int16MultiArray, self.override_joy_sub_topic, self.sub_override_joy_callback, 10)
+        self.override_joy_sub = self.create_subscription(Int16MultiArray, self.override_joy_sub_topic, self.sub_override_joy_callback, 10)
         self.config_sub = self.create_subscription(Int16MultiArray, self.config_sub_topic, self.sub_config_callback, 10)
         self.config2_sub = self.create_subscription(Int16MultiArray, self.config2_sub_topic, self.sub_config2_callback, 10)
         

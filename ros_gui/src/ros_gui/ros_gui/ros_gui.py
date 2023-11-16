@@ -15,6 +15,7 @@ class Preset(Enum):
 class App(ct.CTk):
     FONT_TYPE = "meiryo"
     config_keeper = [1, 1, 1, 1, 1, 1]
+    last_limit = [1] * 6
     num_of_config = [3, 2, 2, 2, 2, 2]
     config2 = [0,0,0,0,0,0,0,0]
     
@@ -159,13 +160,15 @@ class App(ct.CTk):
             
     def updates(self):
         print(self.config_keeper)
+        if self.ros_gui.limit[2] != self.last_limit[2] and self.last_limit[2] == 0:
+            self.config_keeper[0] = 2
         for i in range(len(self.button_obj_keeper)):
             i_list = self.button_obj_keeper[i]
             for j in range(len(i_list)):
                 target_obj = i_list[j] 
                 target_obj.configure(fg_color=self.color_config[j + 1 != self.config_keeper[i]])
                 target_obj.configure(hover_color=self.color_hover_config[j + 1 != self.config_keeper[i]])
-        
+        self.last_limit = self.ros_gui.limit
         self.ros_gui.cvt_and_send(self.config_keeper)
         self.ros_gui.cvt_and_send2(self.config2)
         
@@ -209,14 +212,17 @@ class RosGui(Node):
     node_name = "ros_gui"
     config_pub_topic_name = "config"
     config2_pub_topic_name = "config2"
+    limit_pub_topic_name = "limit"
     config_sub_topic_name = "can_btn"
     msg = [0,0,0,0,0,0,0,0]
     msg2 = [0,0,0,0,0,0,0,0]
+    limit = [0] * 8
     
     def __init__(self):
         super().__init__(self.node_name)
         self.pub_config = self.create_publisher(Int16MultiArray, self.config_pub_topic_name, 10)
         self.pub_config2 = self.create_publisher(Int16MultiArray, self.config2_pub_topic_name, 10)
+        self.pub_limit = self.create_subscription(Int16MultiArray, self.limit_pub_topic_name, self.limit_callback, 10)
         self.sub_config = self.create_subscription(Int16MultiArray, self.config_sub_topic_name, self.callback, 10)
 
     def cvt_and_send(self,data):
@@ -230,6 +236,11 @@ class RosGui(Node):
     def callback(self,data):
         self.msg = data.data
         self.get_logger().info(self.msg)
+        
+    def limit_callback(self, data):
+        self.limit = data.data
+        # self.get_logger().info(self.limit)
+        
         
 def main():
     try: 
