@@ -15,7 +15,7 @@ class Preset(Enum):
 class App(ct.CTk):
     FONT_TYPE = "meiryo"
     config_keeper = [1, 1, 1, 1, 1, 1]
-    last_limit = [1] * 6
+    last_limit = [1] * 8
     num_of_config = [3, 2, 2, 2, 2, 2]
     config2 = [0,0,0,0,0,0,0,0]
     temp_updown = [0, 0]
@@ -164,12 +164,20 @@ class App(ct.CTk):
         print(self.config_keeper)
         if self.ros_gui.limit[2] != self.last_limit[2] and self.last_limit[2] == 0:
             self.config_keeper[0] = 2
+            print("1")
+            if self.temp_updown in self.preset_config:
+                self.apply_preset_auto(self.preset_config.index(self.temp_updown))
         if self.ros_gui.limit[4] != self.last_limit[4] and self.last_limit[4] == 0:
             self.temp_updown[0] = 2
+            print("2")
+            if self.temp_updown in self.preset_config:
+                self.apply_preset_auto(self.preset_config.index(self.temp_updown))
         if self.ros_gui.limit[6] != self.last_limit[6] and self.last_limit[6] == 0:
             self.temp_updown[1] = 2
-        if self.temp_updown in self.preset_config:
-            self.apply_preset_auto(self.preset_config.index(self.temp_updown))
+            print("3")
+            if self.temp_updown in self.preset_config:
+                self.apply_preset_auto(self.preset_config.index(self.temp_updown))
+
         for i in range(len(self.button_obj_keeper)):
             i_list = self.button_obj_keeper[i]
             for j in range(len(i_list)):
@@ -178,6 +186,8 @@ class App(ct.CTk):
                 target_obj.configure(hover_color=self.color_hover_config[j + 1 != self.config_keeper[i]])
         self.last_limit = self.ros_gui.limit
         self.temp_updown = [self.config_keeper[2], self.config_keeper[3]]
+        print(self.temp_updown)
+        
         self.ros_gui.cvt_and_send(self.config_keeper)
         self.ros_gui.cvt_and_send2(self.config2)
         
@@ -195,7 +205,7 @@ class App(ct.CTk):
             self.config_keeper[1] = Preset.BELT_ON.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
-        self.updates()
+        # self.updates()
         
     def apply_preset_next(self):
         self.now_preset += 1
