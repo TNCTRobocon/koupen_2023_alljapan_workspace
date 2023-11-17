@@ -31,7 +31,7 @@ class RosImage(Node):
     USE_CAMERA = 1 # 0=Manual 1=Auto
     DETECT_TYPE = 1 #0=Only DepthAI 1=Use Both
     
-    USE_WHICH_CAM = 0 #0=Depth 1=RS Switched by GUI
+    USE_WHICH_CAM = 0 #0=Depth 1=RS  #Switched by GUI
     
     rs_connected = 0
     depthai_connected = 0
@@ -65,7 +65,7 @@ class RosImage(Node):
         self.joymsg = Joy()
         self.bridge = CvBridge()
         
-        self.point = Node
+        self.point = None
         self.config = [1] * 6
         self.command_side_value = 0
         self.command_front_value = 0

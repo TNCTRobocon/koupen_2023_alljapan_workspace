@@ -9,7 +9,7 @@ from pathlib import Path
 class DepthAiTools():
     CONFIG = "honrobo_main/src/ros_main/models/best.json"
     MODEL =  "honrobo_main/src/ros_main/models/best_openvino_2022.1_6shave.blob"
-    CAMERA_PREV_DIM = (320, 320)
+    CAMERA_PREV_DIM = (640, 640)
     
     def __init__(self):
         self.pipeline = self.create_camera_pipeline(self.CONFIG, self.MODEL)

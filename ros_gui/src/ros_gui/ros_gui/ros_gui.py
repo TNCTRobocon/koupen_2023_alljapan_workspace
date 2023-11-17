@@ -235,7 +235,7 @@ class RosGui(Node):
         
     def callback(self,data):
         self.msg = data.data
-        self.get_logger().info(self.msg)
+        # self.get_logger().info(self.msg)
         
     def limit_callback(self, data):
         self.limit = data.data
