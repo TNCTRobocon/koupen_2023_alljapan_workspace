@@ -10,7 +10,7 @@ import depthai as dai
 
 from .module.RealsenseTools import Realsense
 from .module.Recognition import Recog
-from .module.DepthAiTools import *
+from .module.DepthAiTools import DepthAiTools
 
 class RosImage(Node):
     node_name = "ros_image"

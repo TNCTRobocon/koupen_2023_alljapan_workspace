@@ -71,7 +71,6 @@ class RosServo(Node):
             self.reset_servo()
             return
         if self.get_pin_list[0] == 0 and self.get_pin_list[1] == 0:
-            # self.reset_servo()
             self.servo_counter = 0
             self.servo_status = 0
         elif self.get_pin_list[0] == 1 and self.get_pin_list[1] == 1:
