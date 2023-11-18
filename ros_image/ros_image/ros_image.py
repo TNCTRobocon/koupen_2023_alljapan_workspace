@@ -22,8 +22,8 @@ class RosImage(Node):
     img_pub_topic_name = 'result'
     
     CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
-    USE_CAMERA = 1 # 0=Manual 1=Auto
-    DETECT_TYPE = 1 #0=Only DepthAI 1=Use Both
+    USE_CAMERA = 0 # 0=Manual 1=Auto
+    DETECT_TYPE = 2 #0=Only DepthAI 1=Only Realsense 2=Use Both
     
     FRAME_RATE = 30
     ARROW_LOST_FRAME = 10
@@ -70,23 +70,29 @@ class RosImage(Node):
         self.command_front_value = 0
         
         if not self.USE_CAMERA:
+            self.get_logger().info("Camera isn't used")
+            self.get_logger().info("Starting main process")
             return
-        if self.DETECT_TYPE == 1:
+        
+        if self.DETECT_TYPE == 1 or self.DETECT_TYPE == 2:
             try:
                 self.get_logger().info("Waiting Realsense...")
                 self.rs = Realsense()
-                self.get_logger().info("Success")
+                self.get_logger().info("Connected Realsense")
                 self.rs_connected = 1
             except:
-                self.get_logger().info("Realsense is not used")
+                self.get_logger().info("Realsense connect failed")
                 self.rs_connected = 0
-        try:
-            self.depthai = DepthAiTools()
-            self.device = dai.Device(self.depthai.pipeline)
-            self.depthai_connected = 1
-        except:
-            self.get_logger().info("DepthAI is not used")
-            self.depthai_connected = 0
+                
+        if self.DETECT_TYPE == 0 or self.DETECT_TYPE == 2:
+            try:
+                self.depthai = DepthAiTools()
+                self.device = dai.Device(self.depthai.pipeline)
+                self.get_logger().info("Connected DepthAI")
+                self.depthai_connected = 1
+            except:
+                self.get_logger().info("DepthAI connect failed")
+                self.depthai_connected = 0
         
         self.get_logger().info("Starting main process")
     
@@ -113,7 +119,7 @@ class RosImage(Node):
         self.use_which_cam = data.data[0]
         
     def image_timer_callback(self):
-        camera_usage = (self.USE_CAMERA == 1 and self.rs_connected == 1 and self.depthai_connected and self.use_which_cam == 1) or (self.USE_CAMERA == 1 and self.depthai_connected == 1 and self.use_which_cam == 0)
+        camera_usage = (self.USE_CAMERA == 1 and self.rs_connected == 1 and self.use_which_cam == 1) or (self.USE_CAMERA == 1 and self.depthai_connected == 1 and self.use_which_cam == 0)
         if camera_usage:
             image, _, side_distance, front_distance= self.recognition()
             print(side_distance, front_distance)
