@@ -63,9 +63,11 @@ class RosServo(Node):
         
     def set_servo(self):
         self.move_servo(180)
+        print("set")
         
     def reset_servo(self):
         self.move_servo(0)
+        print("reset")
         
     def servo_check(self):
         if self.config[0] == 3:
