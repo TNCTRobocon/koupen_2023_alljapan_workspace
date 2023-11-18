@@ -6,6 +6,9 @@ def generate_launch_description():
         Node(
             package='can_messenger',
             executable='can_messenger',
-
+        ),
+        Node(
+            package='ros_servo',
+            executable='ros_servo',
         ),
     ])

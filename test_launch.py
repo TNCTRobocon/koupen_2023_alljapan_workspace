@@ -13,16 +13,5 @@ def generate_launch_description():
             prefix="xterm -e",
             output="screen",
         ),
-        Node(
-            package='ros_gui',
-            executable='ros_gui',
-            prefix="xterm -e",
-            output="screen",
-        ),
-        Node(
-            package='rqt_image_view',
-            executable='rqt_image_view',
-            prefix="xterm -e",
-            output="screen",
-        ),
+
     ])
