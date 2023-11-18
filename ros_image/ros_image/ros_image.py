@@ -63,7 +63,7 @@ class RosImage(Node):
         
         self.timer = self.create_timer(timer_period, self.image_timer_callback)
         
-        self.get_logger().info("Generated Object")
+        self.get_logger().info("Generating Object")
         self.recog = Recog()
         self.imsg = Image()
         self.joymsg = Joy()
