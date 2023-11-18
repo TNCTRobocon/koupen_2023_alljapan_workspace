@@ -48,7 +48,6 @@ class App(ct.CTk):
         self.grid_rowconfigure(5, weight=1)
         self.grid_rowconfigure(6, weight=1)
         self.grid_rowconfigure(7, weight=1)
-        self.grid_rowconfigure(8, weight=1)
         
         self.setup_form()
         
@@ -65,7 +64,7 @@ class App(ct.CTk):
     def setup_form(self):
         ct.set_appearance_mode("dark")
         ct.set_default_color_theme("blue")
-        self.radio_var = ct.IntVar(value=0)
+        self.camera_radio_var = ct.IntVar(value=0)
         
         self.conf1_btn1 = ct.CTkButton(master=self, width=180, height=100, text="通過しない", command=lambda a = 1, b = 1, c = 1 :self.callback(a,b,c), font=self.fonts)
         self.conf1_btn1.grid(column=0, row=5, padx=5, pady=5)
@@ -121,15 +120,15 @@ class App(ct.CTk):
         
         self.retry_btn = ct.CTkButton(master=self, width=180, height=100, text="リトライ", command=self.retry, font=self.fonts)
         self.retry_btn.grid(column=0, row=7, padx=5, pady=5)
-        self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.radio_var, value=0)
+        self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.camera_radio_var, value=0)
         self.radio_btn1.grid(column=1, row=7, padx=5, pady=5)
-        self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.radio_var, value=1)
+        self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.camera_radio_var, value=1)
         self.radio_btn2.grid(column=2, row=7, padx=5, pady=5)
 
         self.updates()
         
     def change_camera(self):
-        self.config2[0] = self.radio_var.get()
+        self.config2[0] = self.camera_radio_var.get()
         self.ros_gui.cvt_and_send2(self.config2)
             
     def retry(self):
@@ -160,20 +159,19 @@ class App(ct.CTk):
         self.updates()
             
     def updates(self):
-        print(self.config_keeper)
         if self.ros_gui.limit[2] != self.last_limit[2] and self.last_limit[2] == 0:
             self.config_keeper[0] = 2
-            print("1")
+            print("Rope Mode")
             if self.temp_updown in self.preset_config:
                 self.apply_preset_auto(self.preset_config.index(self.temp_updown))
         if self.ros_gui.limit[4] != self.last_limit[4] and self.last_limit[4] == 0:
-            self.temp_updown[0] = 2
-            print("2")
+            self.temp_updown[0] = Preset.UP.value
+            print("Front UP")
             if self.temp_updown in self.preset_config:
                 self.apply_preset_auto(self.preset_config.index(self.temp_updown))
         if self.ros_gui.limit[6] != self.last_limit[6] and self.last_limit[6] == 0:
-            self.temp_updown[1] = 2
-            print("3")
+            self.temp_updown[1] = Preset.UP.value
+            print("Back UP")
             if self.temp_updown in self.preset_config:
                 self.apply_preset_auto(self.preset_config.index(self.temp_updown))
 
@@ -185,7 +183,7 @@ class App(ct.CTk):
                 target_obj.configure(hover_color=self.color_hover_config[j + 1 != self.config_keeper[i]])
         self.last_limit = self.ros_gui.limit
         self.temp_updown = [self.config_keeper[2], self.config_keeper[3]]
-        print(self.temp_updown)
+        print(self.config_keeper)
         
         self.ros_gui.cvt_and_send(self.config_keeper)
         self.ros_gui.cvt_and_send2(self.config2)
