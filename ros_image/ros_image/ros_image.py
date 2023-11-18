@@ -22,7 +22,7 @@ class RosImage(Node):
     img_pub_topic_name = 'result'
     
     CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
-    USE_CAMERA = 0 # 0=Manual 1=Auto
+    USE_CAMERA = 1 # 0=Manual 1=Auto
     DETECT_TYPE = 2 #0=Only DepthAI 1=Only Realsense 2=Use Both
     
     FRAME_RATE = 30
@@ -41,6 +41,11 @@ class RosImage(Node):
         super().__init__(self.node_name)
 
         self.get_logger().info("Start init")
+        
+        if self.CONTOROLLER_MODE:
+            self.get_logger().info("Using F310")
+        else:
+            self.get_logger().info("Using PotablePC controller")
         
         self.get_logger().info("Applying CTX settings")
         self.ctx = pyrealsense2.context()
