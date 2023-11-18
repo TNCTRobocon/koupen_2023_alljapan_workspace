@@ -21,18 +21,17 @@ class RosImage(Node):
     override_joy_sub_topic_name = 'override_joy'
     img_pub_topic_name = 'result'
     
-    FRAME_RATE = 30
     CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
+    USE_CAMERA = 1 # 0=Manual 1=Auto
+    DETECT_TYPE = 1 #0=Only DepthAI 1=Use Both
+    
+    FRAME_RATE = 30
     ARROW_LOST_FRAME = 10
     MAX_MOVE_SIDE_AXES = 100
     MAX_MOVE_FRONT_AXES = 50
     METER_TH = 0.5
     
-    USE_CAMERA = 1 # 0=Manual 1=Auto
-    DETECT_TYPE = 1 #0=Only DepthAI 1=Use Both
-    
-    USE_WHICH_CAM = 0 #0=Depth 1=RS  #Switched by GUI
-    
+    use_which_cam = 0 #0=Depth 1=RS  #Switched by GUI
     rs_connected = 0
     depthai_connected = 0
     
@@ -111,10 +110,10 @@ class RosImage(Node):
         self.config = data.data
     
     def sub_config2_callback(self, data):
-        self.USE_WHICH_CAM = data.data[0]
+        self.use_which_cam = data.data[0]
         
     def image_timer_callback(self):
-        camera_usage = (self.USE_CAMERA == 1 and self.rs_connected == 1 and self.depthai_connected and self.USE_WHICH_CAM == 1) or (self.USE_CAMERA == 1 and self.depthai_connected == 1 and self.USE_WHICH_CAM == 0)
+        camera_usage = (self.USE_CAMERA == 1 and self.rs_connected == 1 and self.depthai_connected and self.use_which_cam == 1) or (self.USE_CAMERA == 1 and self.depthai_connected == 1 and self.use_which_cam == 0)
         if camera_usage:
             image, _, side_distance, front_distance= self.recognition()
             print(side_distance, front_distance)
@@ -136,10 +135,10 @@ class RosImage(Node):
         
     def recognition(self):
         # Get imageframe and detected data
-        if self.rs_connected == 1 and self.USE_WHICH_CAM == 1:
+        if self.rs_connected == 1 and self.use_which_cam == 1:
             image, depth, result = self.rs.get_realsense_frame()
             bbox_np = self.recog.detect_fruits(image)
-        elif self.depthai_connected == 1 and self.USE_WHICH_CAM == 0:
+        elif self.depthai_connected == 1 and self.use_which_cam == 0:
             # processed in inside of camera
             image, bbox_np = self.depthai.recognition(self.device)
             depth = None
@@ -175,7 +174,7 @@ class RosImage(Node):
             self.command_side_value = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_SIDE_AXES
             
             # if camera is DepthAI, dont use depth
-            if self.USE_WHICH_CAM == 1:
+            if self.use_which_cam == 1:
                 self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
                 self.command_front_value = (self.fruits_distance / self.METER_TH) * self.MAX_MOVE_FRONT_AXES
                 
