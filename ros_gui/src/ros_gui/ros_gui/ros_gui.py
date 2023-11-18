@@ -204,7 +204,6 @@ class App(ct.CTk):
             self.config_keeper[1] = Preset.BELT_ON.value
             
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
-        # self.updates()
         
     def apply_preset_next(self):
         self.now_preset += 1
@@ -222,8 +221,8 @@ class App(ct.CTk):
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
         
-        # if self.now_preset == 1 or self.now_preset == 4 or self.now_preset == 7 or self.now_preset == 8:
-        #     self.after(500,self.apply_preset_next)
+        if self.now_preset == 4 :
+            self.after(500,self.apply_preset_next)
             
     def apply_preset_back(self):
         self.now_preset -= 1
@@ -269,11 +268,11 @@ class RosGui(Node):
         
     def callback(self,data):
         self.msg = data.data
-        # self.get_logger().info(self.msg)
+        self.get_logger().info(self.msg) #TODO:Debug
         
     def limit_callback(self, data):
         self.limit = data.data
-        # self.get_logger().info(self.limit)
+        self.get_logger().info(self.limit) #TODO:Debug
         
         
 def main():

@@ -16,6 +16,7 @@ class RosServo(Node):
     SERVO_PIN_LIST = [12, 13]
     LIMIT_PIN_LIST = [2, 3, 4, 17, 27, 22, 23, 24]
     FREQ = 50
+    LIMIT_TICK_TH = 20000
     
     def __init__(self):
         super().__init__(self.node_name)
@@ -30,6 +31,10 @@ class RosServo(Node):
         self.callback_ob = []
         self.config = [1] * 8
         
+        self.old_tick = 0
+        self.servo_status = 0
+        self.servo_counter = 0
+        
         for i in range(8):
             self.pi.set_mode(self.LIMIT_PIN_LIST[i], pigpio.INPUT)
             self.pi.set_pull_up_down(self.LIMIT_PIN_LIST[i], pigpio.PUD_UP)
@@ -37,10 +42,6 @@ class RosServo(Node):
         for pin in self.LIMIT_PIN_LIST:
             cb = self.pi.callback(pin, pigpio.EITHER_EDGE, self.pin_callback)
             self.callback_ob.append(cb)
-
-        self.old_tick = 0
-        self.servo_status = 0
-        self.servo_counter = 0
 
         timer_period = 0.1
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -87,7 +88,7 @@ class RosServo(Node):
     
     def pin_callback(self, gpio, level, tick):
         diff = abs(tick - self.limit_tick_list[self.LIMIT_PIN_LIST.index(gpio)])
-        if diff > 20000:
+        if diff > self.LIMIT_TICK_TH:
             print(gpio, level, tick)
             changed_limit = self.LIMIT_PIN_LIST.index(gpio)
             self.get_pin_list[changed_limit] = level

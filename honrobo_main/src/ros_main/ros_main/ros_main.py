@@ -8,8 +8,6 @@ import time
 from .module.JoyCalcTools import JoyCalcTools
 from .module.Switch import *
 
-
-
 class RosMain(Node):
     node_name = "ros_main"
     
@@ -25,7 +23,6 @@ class RosMain(Node):
     CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
     
     def __init__(self):
-        
         super().__init__(self.node_name)
         self.get_logger().info("Start init")
 
@@ -57,7 +54,6 @@ class RosMain(Node):
     def sub_override_joy_callback(self, data):
         self.side_distance = data.data[0]
         self.front_distance = data.data[1]
-        print("override callback")
     
     def sub_config_callback(self, data):
         self.config = data.data

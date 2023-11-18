@@ -182,7 +182,7 @@ class RosImage(Node):
                 return drew_all_info_image, depth, self.command_side_value, self.command_front_value
             return drew_all_info_image, depth, self.command_side_value, 0
         else :
-            print("lost")
+            self.get_logger().info("No Fruits Detected")
             self.point = None
             self.command_side_value = 0
             self.command_front_value = 0
