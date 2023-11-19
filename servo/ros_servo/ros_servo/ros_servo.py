@@ -14,7 +14,7 @@ class RosServo(Node):
     limit_pub_topic = "limit"
 
     SERVO_PIN_LIST = [12, 13]
-    LIMIT_PIN_LIST = [2, 3, 4, 17, 27, 22, 23, 24]
+    LIMIT_PIN_LIST = [16, 20, 19, 26, 6, 5, 1, 7]
     FREQ = 50
     LIMIT_TICK_TH = 20000
     
