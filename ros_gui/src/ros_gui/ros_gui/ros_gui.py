@@ -97,7 +97,7 @@ class App(ct.CTk):
         self.conf5_btn1.grid(column=0, row=3, padx=5, pady=5)
         self.conf5_label = ct.CTkLabel(master=self, width=180, height=80, text="後ろタイヤ", font=self.fonts)
         self.conf5_label.grid(column=1, row=3, padx=5, pady=5)
-        self.conf5_btn2 = ct.CTkButton(master=self, width=180, height=80, text="あがる", command=lambda a = 5, b = 0, c = 0 :self.callback(a,b,c), font=self.fonts)
+        self.conf5_btn2 = ct.CTkButton(master=self, width=180, height=80, text="あがる", command=lambda a = 4, b = 0, c = 0 :self.callback(a,b,c), font=self.fonts)
         self.conf5_btn2.grid(column=2, row=3, padx=5, pady=5)
         
         self.button_obj_keeper.append([self.conf5_btn1, self.conf5_btn2])
@@ -145,7 +145,7 @@ class App(ct.CTk):
         
     
     def callback(self,config,mode,me):
-        if config:
+        if config == 1:
             self.config_keeper[config - 1] = me
         else:
             if mode:
