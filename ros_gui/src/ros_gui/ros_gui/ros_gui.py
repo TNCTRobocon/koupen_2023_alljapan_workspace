@@ -164,16 +164,16 @@ class App(ct.CTk):
             print("Rope Mode")
             if self.temp_updown in self.preset_config:
                 self.apply_preset_auto(self.preset_config.index(self.temp_updown))
-        if self.ros_gui.limit[4] != self.last_limit[4] and self.last_limit[4] == 0:
+        if self.ros_gui.limit[5] != self.last_limit[5] and self.last_limit[5] == 0:
             self.temp_updown[0] = Preset.UP.value
             print("Front UP")
             if self.temp_updown in self.preset_config:
                 self.apply_preset_auto(self.preset_config.index(self.temp_updown))
-        if self.ros_gui.limit[6] != self.last_limit[6] and self.last_limit[6] == 0:
-            self.temp_updown[1] = Preset.UP.value
-            print("Back UP")
-            if self.temp_updown in self.preset_config:
-                self.apply_preset_auto(self.preset_config.index(self.temp_updown))
+        # if self.ros_gui.limit[6] != self.last_limit[6] and self.last_limit[6] == 0:
+        #     self.temp_updown[1] = Preset.UP.value
+        #     print("Back UP")
+        #     if self.temp_updown in self.preset_config:
+        #         self.apply_preset_auto(self.preset_config.index(self.temp_updown))
 
         for i in range(len(self.button_obj_keeper)):
             i_list = self.button_obj_keeper[i]
