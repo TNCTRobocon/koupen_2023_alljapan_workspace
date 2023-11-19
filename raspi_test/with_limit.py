@@ -4,7 +4,7 @@ import time
 pi = pigpio.pi()
 
 SERVO_PIN_LIST = [12, 13]
-LIMIT_PIN_LIST = [16, 20, 19, 26, 6, 5, 1, 7]
+LIMIT_PIN_LIST = [16, 20, 19, 26, 6, 5, 8, 7]
 
 freq = 50
 
