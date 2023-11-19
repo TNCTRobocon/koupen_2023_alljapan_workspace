@@ -20,7 +20,7 @@ class RosMain(Node):
     btn_pub_topic_name = 'can_btn'
     data_pub_topic_name = 'can_data'
     
-    CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
+    CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
     
     def __init__(self):
         super().__init__(self.node_name)
