@@ -51,42 +51,42 @@ class RosServo(Node):
         
     def timer_callback(self):
         print(self.get_pin_list, self.config)
-        self.servo_check()
+        # self.servo_check()
         tmp = Int16MultiArray(data=self.get_pin_list)
         self.limit_pub.publish(tmp)
     
-    def move_servo(self, deg):
-        deg1 = int((deg * 9.5 / 180 + 2.5) * 10000)
-        deg2 = int(((180 - deg) * 9.5 / 180 + 2.5) * 10000)
-        self.pi.hardware_PWM(self.SERVO_PIN_LIST[0], self.FREQ, deg1)
-        self.pi.hardware_PWM(self.SERVO_PIN_LIST[1], self.FREQ, deg2)
+    # def move_servo(self, deg):
+    #     deg1 = int((deg * 9.5 / 180 + 2.5) * 10000)
+    #     deg2 = int(((180 - deg) * 9.5 / 180 + 2.5) * 10000)
+    #     self.pi.hardware_PWM(self.SERVO_PIN_LIST[0], self.FREQ, deg1)
+    #     self.pi.hardware_PWM(self.SERVO_PIN_LIST[1], self.FREQ, deg2)
         
-    def set_servo(self):
-        self.move_servo(180)
-        print("set")
+    # def set_servo(self):
+    #     self.move_servo(180)
+    #     print("set")
         
-    def reset_servo(self):
-        self.move_servo(0)
-        print("reset")
+    # def reset_servo(self):
+    #     self.move_servo(0)
+    #     print("reset")
         
-    def servo_check(self):
-        if self.config[0] == 3:
-            self.reset_servo()
-            return
-        if self.get_pin_list[0] == 0 and self.get_pin_list[1] == 0:
-            self.servo_counter = 0
-            self.servo_status = 0
-        elif self.get_pin_list[0] == 1 and self.get_pin_list[1] == 1:
-            if self.servo_counter <= 5:
-                self.set_servo()
-                self.servo_status = 1
-                self.servo_counter = 0
-            else:
-                self.servo_counter += 1
-        elif self.get_pin_list[0] == 1 or self.get_pin_list[1] == 1:
-            self.servo_counter += 1 
-        else:
-            return
+    # def servo_check(self):
+    #     if self.config[0] == 3:
+    #         self.reset_servo()
+    #         return
+    #     if self.get_pin_list[0] == 0 and self.get_pin_list[1] == 0:
+    #         self.servo_counter = 0
+    #         self.servo_status = 0
+    #     elif self.get_pin_list[0] == 1 and self.get_pin_list[1] == 1:
+    #         if self.servo_counter <= 5:
+    #             self.set_servo()
+    #             self.servo_status = 1
+    #             self.servo_counter = 0
+    #         else:
+    #             self.servo_counter += 1
+    #     elif self.get_pin_list[0] == 1 or self.get_pin_list[1] == 1:
+    #         self.servo_counter += 1 
+    #     else:
+    #         return
     
     def pin_callback(self, gpio, level, tick):
         diff = abs(tick - self.limit_tick_list[self.LIMIT_PIN_LIST.index(gpio)])
