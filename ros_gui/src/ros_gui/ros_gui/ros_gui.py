@@ -159,7 +159,7 @@ class App(ct.CTk):
         self.updates()
             
     def updates(self):
-        if (self.ros_gui.limit[2] != self.last_limit[2] and self.last_limit[2] == 0) or (self.ros_gui.limit[3] != self.last_limit[3] and self.last_limit[3] == 0):
+        if (self.ros_gui.limit[2] != self.last_limit[2] and self.last_limit[2] == 0 and self.now_preset == 0) or (self.ros_gui.limit[3] != self.last_limit[3] and self.last_limit[3] == 0 and self.now_preset == 0):
             self.config_keeper[0] = 2
             print("Rope Mode")
             if self.temp_updown in self.preset_config:
@@ -220,7 +220,7 @@ class App(ct.CTk):
         self.updates()
         
         if self.now_preset == 4 :
-            self.after(500,self.apply_preset_next)
+            self.after(3000,self.apply_preset_next)
             
     def apply_preset_back(self):
         self.now_preset -= 1
