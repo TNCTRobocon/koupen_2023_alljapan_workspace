@@ -92,7 +92,7 @@ class RosImage(Node):
         if self.DETECT_TYPE == 0 or self.DETECT_TYPE == 2:
             try:
                 self.depthai = DepthAiTools()
-                self.device = dai.Device(self.depthai.pipeline)
+                # self.device = dai.Device(self.depthai.pipeline)
                 self.get_logger().info("Connected DepthAI")
                 self.depthai_connected = 1
             except:
@@ -151,7 +151,8 @@ class RosImage(Node):
             bbox_np = self.recog.detect_fruits(image)
         elif self.depthai_connected == 1 and self.use_which_cam == 0:
             # processed in inside of camera
-            image, bbox_np = self.depthai.recognition(self.device)
+            image = self.depthai.get_frame()
+            bbox_np = self.recog.detect_fruits(image)
             depth = None
         else:
             return RuntimeError("Irrigal recognition option")

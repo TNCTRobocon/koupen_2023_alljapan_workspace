@@ -20,7 +20,7 @@ def generate_launch_description():
         Node(
             package='ros_image',
             executable='ros_image',
-            prefix="xterm -e",
+            # prefix="xterm -e",
             output="screen",
 
         ),
