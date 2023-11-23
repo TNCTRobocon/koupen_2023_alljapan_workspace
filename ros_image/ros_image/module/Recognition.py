@@ -10,7 +10,7 @@ class Recog():
         self.model = YOLO("honrobo_main/src/ros_main/weights/best.pt") # PATH
         self.detected_none_count = 0
     def detect_fruits(self, image):
-        results = self.model.track(source=image, tracker="botsort.yaml", conf=0.5, iou=0.5, persist=True, show=False)
+        results = self.model.track(source=image, tracker="botsort.yaml", conf=0.5, iou=0.5, show=False)
         bbox = results[0].boxes.xyxy
         bbox_np = bbox.to('cpu').detach().numpy().copy()
         return bbox_np
@@ -47,7 +47,7 @@ class Recog():
         return origin_point, detected_list
 
     def draw_frame_line(self, image, origin_point):
-        cv2.line(image, (origin_point.origin_frame_centor_x, 0), (origin_point.origin_frame_centor_x, origin_point.origin_frame_y), (0, 255, 0), thickness=2)
+        cv2.line(image, (origin_point.origin_frame_centor_x, 0), (origin_point.origin_frame_centor_x, origin_point.origin_frame_y), (0, 255, 0), thickness=4)
         
         return image
     
@@ -60,8 +60,10 @@ class Recog():
         return image
     
     def mark_pointed_fruits(self, image, origin_point, detected_rect_point):
+        diff = int((detected_rect_point.detected_x2 - detected_rect_point.detected_x1) / 4)
         cv2.line(image, (origin_point.origin_frame_centor_x, detected_rect_point.detected_centor_y), 
-                (detected_rect_point.detected_centor_x, detected_rect_point.detected_centor_y), (0, 255, 0), thickness=2)
+                (detected_rect_point.detected_centor_x, detected_rect_point.detected_centor_y), (0, 255, 0), thickness=4)
+        cv2.rectangle(image, (detected_rect_point.detected_centor_x - diff, detected_rect_point.detected_centor_y - diff), (detected_rect_point.detected_centor_x + diff, detected_rect_point.detected_centor_y + diff), (0, 255, 0))
         return image
         
     def calc_side_movement(self, origin_point, detected_rect_point):
@@ -76,14 +78,27 @@ class Recog():
         move_distance = (distance_from_centor / origin_point.origin_frame_x) * (1 - per_of_screen) * direction
         return move_distance
     
-    def calc_front_movement(self, detected_rect_point, result):
+    def calc_front_distance(self, detected_rect_point, result):
+        i = 1
+        sum_meters = 0
         x = detected_rect_point.detected_centor_x
         y = detected_rect_point.detected_centor_y
-        depth_data_meters = result.get_distance(x,y)
-        # if depth_data_meters < 0.1:
-        #     return 0
+        diff = int((detected_rect_point.detected_x2 - detected_rect_point.detected_x1) / 4)
+        for new_x in range(x-diff, x+diff, 1):
+            for new_y in range(y-diff, y+diff, 1):
+                sum_meters += result.get_distance(new_x, new_y)
+                i += 1
+        return sum_meters / i
+    
+    # def calc_front_movement(self, detected_rect_point, result):
+    #     x = detected_rect_point.detected_centor_x
+    #     y = detected_rect_point.detected_centor_y
+    #     depth_data_meters = result.get_distance(x,y)
         
-        return depth_data_meters
+    #     # if depth_data_meters < 0.1:
+    #     #     return 0
+        
+    #     return depth_data_meters
     
     def detecting_check(self, bbox_np, mode):
         

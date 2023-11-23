@@ -25,7 +25,7 @@ class RosImage(Node):
     USE_CAMERA = 1 # 0=Manual 1=Auto
     DETECT_TYPE = 2 #0=Only DepthAI 1=Only Realsense 2=Use Both
     
-    FRAME_RATE = 30
+    FRAME_RATE = 60
     ARROW_LOST_FRAME = 10
     MAX_MOVE_SIDE_AXES = 100
     MAX_MOVE_FRONT_AXES = 50
@@ -124,6 +124,7 @@ class RosImage(Node):
         self.use_which_cam = data.data[0]
         
     def image_timer_callback(self):
+        
         camera_usage = (self.USE_CAMERA == 1 and self.rs_connected == 1 and self.use_which_cam == 1) or (self.USE_CAMERA == 1 and self.depthai_connected == 1 and self.use_which_cam == 0)
         if camera_usage:
             image, _, side_distance, front_distance= self.recognition()
@@ -150,7 +151,6 @@ class RosImage(Node):
             image, depth, result = self.rs.get_realsense_frame()
             bbox_np = self.recog.detect_fruits(image)
         elif self.depthai_connected == 1 and self.use_which_cam == 0:
-            # processed in inside of camera
             image = self.depthai.get_frame()
             bbox_np = self.recog.detect_fruits(image)
             depth = None
@@ -162,7 +162,7 @@ class RosImage(Node):
         drew_frame_image = self.recog.draw_frame_line(image, origin_point)
         
         # check mode and number of fruits
-        if self.recog.detecting_check(bbox_np, self.config[5]) < self.ARROW_LOST_FRAME :
+        if self.recog.detecting_check(bbox_np, self.config[4]) < self.ARROW_LOST_FRAME :
             if detected_list == None:
                 return drew_frame_image, depth, self.command_side_value, self.command_front_value
             
@@ -171,13 +171,17 @@ class RosImage(Node):
             if self.point == None:
                 return drew_frame_fruits_image, depth, 0, 0
             
+            if self.config[4] == 2:
+                self.point == None
+                self.command_side_value = 0
+                self.command_front_value = 0
+                return drew_frame_fruits_image, depth, self.command_side_value, self.command_front_value
+            
             detected_rect_point = self.recog.search_pointed_fruits_from_list(detected_list,self.point)
             
             if detected_rect_point == None:
                 return drew_frame_fruits_image, depth, self.command_side_value, self.command_front_value
-            
-            if self.config[5] != 1:
-                return drew_frame_fruits_image, depth, 0, 0
+
             
             drew_all_info_image = self.recog.mark_pointed_fruits(drew_frame_fruits_image, origin_point, detected_rect_point)
             self.point.x = float(detected_rect_point.detected_centor_x)
@@ -187,7 +191,7 @@ class RosImage(Node):
             
             # if camera is DepthAI, dont use depth
             if self.use_which_cam == 1:
-                self.fruits_distance = self.recog.calc_front_movement(detected_rect_point,result)
+                self.fruits_distance = self.recog.calc_front_distance(detected_rect_point,result)
                 self.command_front_value = (self.fruits_distance / self.METER_TH) * self.MAX_MOVE_FRONT_AXES
                 
                 return drew_all_info_image, depth, self.command_side_value, self.command_front_value
