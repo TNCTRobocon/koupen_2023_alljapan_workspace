@@ -16,7 +16,7 @@ class RosServo(Node):
     SERVO_PIN_LIST = [12, 13]
     LIMIT_PIN_LIST = [16, 20, 19, 26, 6, 5, 8, 7]
     FREQ = 50
-    LIMIT_TICK_TH = 20000
+    LIMIT_TICK_TH = 10000
     
     def __init__(self):
         super().__init__(self.node_name)

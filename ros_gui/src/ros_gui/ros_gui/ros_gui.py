@@ -34,7 +34,7 @@ class App(ct.CTk):
         self.ros_gui = RosGui()
         
         self.fonts = (self.FONT_TYPE, 25)
-        self.geometry("590x700")
+        self.geometry("590x800")
         self.title("GUI")
         
         self.grid_columnconfigure(0, weight=1)
@@ -120,23 +120,46 @@ class App(ct.CTk):
         
         self.retry_btn = ct.CTkButton(master=self, width=180, height=100, text="リトライ", command=self.retry, font=self.fonts)
         self.retry_btn.grid(column=0, row=7, padx=5, pady=5)
-        self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.camera_radio_var, value=0)
-        self.radio_btn1.grid(column=1, row=7, padx=5, pady=5)
-        self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.camera_radio_var, value=1)
-        self.radio_btn2.grid(column=2, row=7, padx=5, pady=5)
+        self.standup_btn = ct.CTkButton(master=self, width=180, height=100, text="立つ", command=self.standup, font=self.fonts)
+        self.standup_btn.grid(column=1, row=7, padx=5, pady=5)
+        self.sitdown_btn = ct.CTkButton(master=self, width=180, height=100, text="座る", command=self.sitdown, font=self.fonts)
+        self.sitdown_btn.grid(column=2, row=7, padx=5, pady=5)
+        
+        self.radio_btn1 = ct.CTkRadioButton(master=self, text="DepthAI",command=self.change_camera, variable=self.camera_radio_var, value=0, radiobutton_width=50, radiobutton_height=50)
+        self.radio_btn1.grid(column=1, row=8, padx=5, pady=40)
+        self.radio_btn2 = ct.CTkRadioButton(master=self, text="Realsense",command=self.change_camera, variable=self.camera_radio_var, value=1, radiobutton_width=50, radiobutton_height=50)
+        self.radio_btn2.grid(column=2, row=8, padx=5, pady=40)
 
         self.updates()
         
     def change_camera(self):
         self.config2[0] = self.camera_radio_var.get()
         self.ros_gui.cvt_and_send2(self.config2)
+    
+    def standup(self):
+        self.now_preset = 0        
+        for i in range(2):
+            self.config_keeper[i + 2] = Preset.DOWN.value
+        
+        self.config_keeper[1] = Preset.BELT_OFF.value
+            
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset, len(self.preset_config) - 1, self.ros_gui.msg[0]))
+        self.updates()
+
+    def sitdown(self):
+        self.now_preset = 2     
+        for i in range(2):
+            self.config_keeper[i + 2] = Preset.UP.value
+        
+        self.config_keeper[1] = Preset.BELT_ON.value
+            
+        self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset, len(self.preset_config) - 1, self.ros_gui.msg[0]))
+        self.updates()
             
     def retry(self):
-        self.now_preset = 0
-        self.now_timber_preset = 0
-        
+        self.now_preset = 0        
         for i in range(2):
-            self.config_keeper[i + 2] = 1
+            self.config_keeper[i + 2] = Preset.DOWN.value
         
         self.config_keeper[1] = Preset.BELT_OFF.value
             
@@ -219,8 +242,8 @@ class App(ct.CTk):
         self.conf7_label.configure(text="段差乗り越え %d/%d\nSpeed %d"%(self.now_preset,len(self.preset_config) - 1,self.ros_gui.msg[0]))
         self.updates()
         
-        if self.now_preset == 4 :
-            self.after(3000,self.apply_preset_next)
+        # if self.now_preset == 4 :
+        #     self.after(3000,self.apply_preset_next)
             
     def apply_preset_back(self):
         self.now_preset -= 1
