@@ -190,7 +190,7 @@ class RosImage(Node):
             self.command_side_value = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_SIDE_AXES
             
             # if camera is DepthAI, dont use depth
-            if self.use_which_cam == 1:
+            if self.use_which_cam == 1: # if False:
                 self.fruits_distance = self.recog.calc_front_distance(detected_rect_point,result)
                 self.command_front_value = (self.fruits_distance / self.METER_TH) * self.MAX_MOVE_FRONT_AXES
                 

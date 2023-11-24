@@ -27,7 +27,7 @@ def main():
 	while True:
 		print(get_pin_list)
 		servo_check()
-		time.sleep(0.1)
+		time.sleep(0.05)
 
 def reset_servo():
 	move_servo(0)
