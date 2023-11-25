@@ -111,7 +111,9 @@ class Recog():
     
     def search_pointed_fruits_from_list(self, detect_list, point):
         for detect in detect_list:
-            if (detect.detected_x1 < point.x < detect.detected_x2) and (detect.detected_y1 < point.y < detect.detected_y2):
+            detect_sum_x = abs(detect.detected_x1 - detect.detected_x2)
+            detect_sum_y = abs(detect.detected_y1 - detect.detected_y2)
+            if (detect.detected_x1 - detect_sum_x < point.x < detect.detected_x2 + detect_sum_x) and (detect.detected_y1 - detect_sum_y< point.y < detect.detected_y2 + detect_sum_y):
                 return detect
             
             
