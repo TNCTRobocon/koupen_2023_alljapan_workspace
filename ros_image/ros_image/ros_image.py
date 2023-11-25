@@ -21,7 +21,7 @@ class RosImage(Node):
     override_joy_sub_topic_name = 'override_joy'
     img_pub_topic_name = 'result'
     
-    CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
+    CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
     USE_CAMERA = 1 # 0=Manual 1=Auto
     DETECT_TYPE = 2 #0=Only DepthAI 1=Only Realsense 2=Use Both
     
@@ -190,7 +190,8 @@ class RosImage(Node):
             self.command_side_value = self.recog.calc_side_movement(origin_point, detected_rect_point) * self.MAX_MOVE_SIDE_AXES
             
             # if camera is DepthAI, dont use depth
-            if self.use_which_cam == 1: # if False:
+            # if self.use_which_cam == 1: 
+            if False:
                 self.fruits_distance = self.recog.calc_front_distance(detected_rect_point,result)
                 self.command_front_value = (self.fruits_distance / self.METER_TH) * self.MAX_MOVE_FRONT_AXES
                 
