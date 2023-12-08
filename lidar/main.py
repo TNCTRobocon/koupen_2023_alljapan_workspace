@@ -26,13 +26,13 @@ import pigpio
         
 class LineLidar:
     LINE_PIN = 2
-
+    
     def __init__(self):
         self.pi = pigpio.pi()
         
         self.pi.set_mode(self.LINE_PIN, pigpio.INPUT)
         self.pi.set_pull_up_down(self.LINE_PIN,pigpio.PUD_UP)
-        
+        self.last_pin = None
         while True:
             self.mejour()
             time.sleep(0.000001)
