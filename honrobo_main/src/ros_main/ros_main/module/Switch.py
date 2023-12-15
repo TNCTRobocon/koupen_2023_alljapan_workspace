@@ -4,8 +4,9 @@ class ToggleSwitch():
         self.__lasttime_button_data = [0] * 8
     
     def judge_changed_button(self,data):
+        print(data, self.__lasttime_button_data)
         for i in range(len(data)):
-            if (data[i] != self.__lasttime_button_data[i]) and (data[i] == 1):
+            if ((data[i] != self.__lasttime_button_data[i]) or (data[0] == self.__lasttime_button_data[0] == 1)) and (data[i] == 1):
                 return_switch = i
                 return return_switch
             else:

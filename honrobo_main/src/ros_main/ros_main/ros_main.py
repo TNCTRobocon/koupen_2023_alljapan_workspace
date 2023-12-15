@@ -20,7 +20,7 @@ class RosMain(Node):
     btn_pub_topic_name = 'can_btn'
     data_pub_topic_name = 'can_data'
     
-    CONTOROLLER_MODE = 0 # 0=Portable-PC 1=F310
+    CONTOROLLER_MODE = 1 # 0=Portable-PC 1=F310
     
     def __init__(self):
         super().__init__(self.node_name)
@@ -75,17 +75,20 @@ class RosMain(Node):
         tmp_data_1 = Int16MultiArray(data=joy_data)
         self.pub_joy.publish(tmp_data_1)
         
-        time.sleep(0.0003)
+        sleep_time = 0.000001
+        # sleep_time = 0.03
+        
+        time.sleep(sleep_time)
         copied_button = to_int(copied_button)
         tmp_data_2 = Int16MultiArray(data=copied_button)
         self.pub_btn.publish(tmp_data_2)
-        time.sleep(0.0003)
+        time.sleep(sleep_time)
         
         hat_msg_data = to_int(hat_msg_data)
         self.joy_tool.override_config(hat_msg_data, self.config)
         tmp_data_3 = Int16MultiArray(data=hat_msg_data)
         self.pub_data.publish(tmp_data_3)
-        time.sleep(0.0003)
+        time.sleep(sleep_time)
         
     def contoroller(self, joy):
         # 1
@@ -95,9 +98,10 @@ class RosMain(Node):
         # 2
         self.toggle_button_data = self.joy_tool.deplicate_btn_data(joy)
         changed_switch = self.t_switch.judge_changed_button(self.toggle_button_data)
- 
+        
         if changed_switch < 4 and changed_switch != -1:
             self.button_data[0] = changed_switch 
+        
 
         copied_button = self.joy_tool.copy_button(self.toggle_button_data, self.button_data)
         # 3
